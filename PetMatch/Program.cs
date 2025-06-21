@@ -14,6 +14,10 @@ using PetMatch.Services;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
+///CONFIGURACION NECESARIA PARA LLAMAR LAS CLAVES DE appsettingsLocal, si se llama solo appsettings no es necesario
+builder.Configuration
+    .AddJsonFile("appsettingsLocal.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
 // CLAVES DE GOOGLE CONSOLE
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
