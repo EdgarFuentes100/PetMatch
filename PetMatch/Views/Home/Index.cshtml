@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- Sección principal con imagen de fondo -->
+<div class="container-fluid mi-fondo d-flex align-items-start vh-100 pt-5">
+    <div class="ms-4 col-md-6 col-lg-4">
+        <h1 class="text-white display-5 fw-bold">Encuentra tu Compañero Perfecto</h1>
+        <p class="text-white fs-5 mt-3">"La felicidad es un hogar donde siempre hay amor y cuatro patas."</p>
+
+        <div class="d-flex justify-content-center mt-4">
+            <a asp-controller="Adopcion" asp-action="VistaAdopcion" class="btn btn-success btn-lg">Adoptar</a>
+        </div>
+    </div>
+</div>
+
+
+<!-- Sección de Fundaciones Asociadas -->
+<div class="container py-5">
+    <h3 class="text-center mb-5">Fundaciones Asociadas</h3>
+    <div class="row g-4 justify-content-center">
+
+        <!-- Fundación 1 -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <img src="https://th.bing.com/th/id/OIP.TBTICWyDfiTNTuQS6OpZVwAAAA?rs=1&pid=ImgDetMain" class="card-img-top" alt="Fundación Huella Animal">
+                <div class="card-body">
+                    <h5 class="card-title">Huella Animal</h5>
+                    <p class="card-text">Rescate, cuidado y adopción de perros abandonados. Ubicados en San Salvador.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fundación 2 -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <img src="https://th.bing.com/th/id/OIP.TBTICWyDfiTNTuQS6OpZVwAAAA?rs=1&pid=ImgDetMain" class="card-img-top" alt="Fundación Patas Felices">
+                <div class="card-body">
+                    <h5 class="card-title">Patas Felices</h5>
+                    <p class="card-text">Trabajamos por una segunda oportunidad para animales maltratados. Más de 100 adopciones al año.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fundación 3 -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <img src="https://th.bing.com/th/id/OIP.TBTICWyDfiTNTuQS6OpZVwAAAA?rs=1&pid=ImgDetMain" class="card-img-top" alt="Fundación Refugio Esperanza">
+                <div class="card-body">
+                    <h5 class="card-title">Refugio Esperanza</h5>
+                    <p class="card-text">Brindamos atención médica, comida y amor a perros rescatados hasta que encuentren hogar.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

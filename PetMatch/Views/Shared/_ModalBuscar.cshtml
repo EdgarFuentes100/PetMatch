@@ -1,0 +1,46 @@
+﻿@{
+    var tipoSeleccionado = Context.Request.Query["tipo"].ToString();
+    var edadSeleccionada = Context.Request.Query["edad"].ToString();
+    var sexoSeleccionado = Context.Request.Query["sexo"].ToString();
+}
+
+<div class="modal fade" id="modalBuscar" tabindex="-1" aria-labelledby="modalBuscarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="get" action="/Adopcion/VistaAdopcion" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalBuscarLabel">Filtrar Mascotas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="tipo" class="form-label">Tipo</label>
+                    <select name="tipo" id="tipo" class="form-select">
+                        <option value="" selected="@string.IsNullOrEmpty(tipoSeleccionado)">Todos</option>
+                        <option value="Perro" selected="@(tipoSeleccionado == "Perro")">Perro</option>
+                        <option value="Gato" selected="@(tipoSeleccionado == "Gato")">Gato</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="edad" class="form-label">Edad</label>
+                    <select name="edad" id="edad" class="form-select">
+                        <option value="" selected="@string.IsNullOrEmpty(edadSeleccionada)">Todas</option>
+                        <option value="1 año" selected="@(edadSeleccionada == "1 año")">1 año</option>
+                        <option value="2 años" selected="@(edadSeleccionada == "2 años")">2 años</option>
+                        <option value="3 años" selected="@(edadSeleccionada == "3 años")">3 años</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="sexo" class="form-label">Sexo</label>
+                    <select name="sexo" id="sexo" class="form-select">
+                        <option value="" selected="@string.IsNullOrEmpty(sexoSeleccionado)">Ambos</option>
+                        <option value="Macho" selected="@(sexoSeleccionado == "Macho")">Macho</option>
+                        <option value="Hembra" selected="@(sexoSeleccionado == "Hembra")">Hembra</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-buscar w-100">Buscar</button>
+            </div>
+        </form>
+    </div>
+</div>

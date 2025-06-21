@@ -1,0 +1,65 @@
+﻿@model PetMatch.Models.Perfil
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+@if (User.Identity != null && User.Identity.IsAuthenticated)
+{
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="row g-0">
+                        <!-- Columna izquierda: Info -->
+                        <div class="col-md-4 bg-light text-center rounded-start-4 p-4 d-flex flex-column align-items-center justify-content-center">
+                            <img src="/img/unsplash.jpg" class="rounded-circle mb-3 border border-secondary" alt="Avatar" style="width: 120px; height: 120px; object-fit: cover;">
+                            <h4 class="fw-bold mb-1">@Model.Usuario.Nombre</h4>
+                            <p class="text-muted mb-2">@Model.Usuario.Email</p>
+                            <span class="badge bg-primary">Rol: @Model.Usuario.Rol.Nombre</span>
+                        </div>
+
+                        <!-- Columna derecha: Formulario -->
+                        <div class="col-md-8 p-5">
+                            <h5 class="mb-4">🛠️ Editar Perfil</h5>
+
+                            <form asp-controller="Perfil" asp-action="ActualizarPerfil" method="post">
+                                @Html.AntiForgeryToken()
+
+                                <div class="mb-3">
+                                    <label asp-for="Usuario.Nombre" class="form-label fw-semibold">Nombre</label>
+                                    <input asp-for="Usuario.Nombre" class="form-control" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Descripcion" class="form-label fw-semibold">Descripción</label>
+                                    <textarea asp-for="Descripcion" class="form-control" rows="2"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Direccion" class="form-label fw-semibold">Dirección</label>
+                                    <textarea asp-for="Direccion" class="form-control" rows="2"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Telefono" class="form-label fw-semibold">Teléfono</label>
+                                    <input asp-for="Telefono" class="form-control" />
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success">💾 Guardar cambios</button>
+                                    <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-danger">🔓 Cerrar sesión</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning text-center my-5" role="alert">
+        No has iniciado sesión. Por favor, <a asp-controller="Account" asp-action="Login" class="alert-link">inicia sesión</a> para ver tu perfil.
+    </div>
+}

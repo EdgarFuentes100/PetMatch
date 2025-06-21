@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Login";
+    var returnUrl = ViewData["ReturnUrl"] ?? "/";
+}
+@if (ViewData["Expired"] != null && (bool)ViewData["Expired"])
+{
+    <div class="alert alert-warning text-center" role="alert">
+        Tu sesión ha expirado. Por favor, inicia sesión nuevamente.
+    </div>
+}
+
+
+<div class="container pt-3" style="min-height: auto;">
+    <div class="card shadow-sm p-4 px-3 text-center" style="max-width: 400px; width: 100%; margin: 0 auto;">
+        <h4 class="mb-4 fw-bold">Muchas gracias por estar con nosotros</h4>
+
+        <img src="/img/unsplash.jpg" alt="Logo Fundación"
+             class="rounded-circle mx-auto d-block mb-3"
+             style="width: 100px; height: 100px; object-fit: cover;">
+
+        <h4 class="mb-4 fw-bold">Fundación PetMatch</h4>
+
+        <form asp-action="LoginWithGoogle" asp-route-returnUrl="@returnUrl" method="post">
+            <button type="submit"
+                    class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                     alt="Google icon"
+                     style="width: 20px; height: 20px;">
+                <span>Iniciar sesión con Google</span>
+            </button>
+        </form>
+    </div>
+</div>

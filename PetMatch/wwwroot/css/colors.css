@@ -1,0 +1,6 @@
+﻿:root {
+    --azul-primario: #1779ba;
+    --gris-fondo: #2c3840;
+    --blanco: #ffffff;
+    --sombra-focus: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}

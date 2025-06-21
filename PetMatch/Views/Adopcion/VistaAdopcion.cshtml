@@ -1,0 +1,84 @@
+﻿@model IEnumerable<PetMatch.Models.Publicacion>
+
+@{
+    ViewData["Title"] = "Adopción";
+    ViewData["IsAdopcionPage"] = true;
+
+}
+
+<div class="container-fluid py-2">
+    <div class="text-center mb-4">
+        <h1 class="fw-bold">🐾 Encuentra tu nuevo mejor amigo</h1>
+        @if (!(User?.Identity?.IsAuthenticated ?? false))   // no ha iniciado sesión
+        {
+            <p class="text-muted">
+                ¿Quieres encontrar la mascota ideal que se adapte a tu estilo de vida?
+
+                <a asp-controller="Account" asp-action="Login" class="text-decoration-underline fw-semibold">Inicia sesión aquí</a> para comenzar.
+            </p>
+        }
+
+        <div class="d-lg-none d-flex align-items-center gap-2 mt-2 mb-2">
+            <div class="flex-grow-1">
+                @await Html.PartialAsync("_InputBuscar") <!-- asegúrate de que este partial solo rinda el <input> -->
+            </div>
+
+            <a asp-controller="IA"
+               asp-action="HacerMatch"
+               class="btn custom-bg2 flex-shrink-0">
+                🐾 Hacer Match
+            </a>
+        </div>
+
+    </div>
+
+    <div class="row">
+        @foreach (var pub in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow border-0 h-100">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <!-- Publicador + título -->
+                        <div class="mb-2">
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="~/img/unsplash.jpg"
+                                     alt="@pub.Publicador.Nombre"
+                                     class="rounded-circle me-2"
+                                     width="36" height="36" />
+                                <span class="fw-semibold">@pub.Publicador.Nombre</span>
+                            </div>
+
+                            <h5 class="card-title fw-bold mb-2">@pub.Titulo</h5>
+
+                            <!-- Historia con ver más/ver menos solo si aplica -->
+                            <div class="historia-container">
+                                <p class="historia-recortada">@pub.Historia</p>
+                                <button type="button" class="btn-ver-mas">Ver más</button>
+                            </div>
+
+                            <img src="@pub.Mascota.FotoUrl"
+                                 class="card-img-top mt-2"
+                                 style="height:250px;object-fit:cover;"
+                                 alt="Foto de @pub.Mascota.Nombre" />
+                        </div>
+
+                        <!-- Detalles -->
+                        <p class="card-text mb-3">
+                            <strong>Mascota:</strong> @pub.Mascota.Nombre<br />
+                            <strong>Tipo Animal:</strong> @pub.Mascota.TipoMascota.Nombre<br />
+                            <strong>Edad:</strong> @pub.Mascota.EdadMeses meses<br />
+                            <strong>Temperamento:</strong> @pub.Mascota.Temperamento<br />
+                            <strong>Tamaño:</strong> @pub.Mascota.Tamano<br />
+                            <strong>Sexo:</strong>
+                            @(pub.Mascota.Sexo == 'M' ? "Macho"
+                                                    : pub.Mascota.Sexo == 'H' ? "Hembra" : "No especificado")
+                    </p>
+
+                        <!-- Botón adoptar -->
+                        <a href="#" class="btn btn-outline-success mt-auto">Adoptar</a>
+                    </div>
+                </div>
+            </div>
+         }
+    </div>
+</div>

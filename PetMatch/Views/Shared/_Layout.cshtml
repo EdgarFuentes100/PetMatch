@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PetMatch</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/colors.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PetMatch.styles.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-wolf-gray py-0">
+            <div class="container-fluid px-0">
+                <a class="navbar-brand d-flex align-items-center px-3" asp-controller="Home" asp-action="Index">AmigoPet</a>
+                @if (ViewData["IsAdopcionPage"] as bool? == true)
+                {
+                    <div class="d-none d-lg-block ms-6 w-25">
+                        @await Html.PartialAsync("_InputBuscar")
+                    </div>
+
+                }
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDarkDropdown" aria-controls="navbarNavDarkDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNavDarkDropdown">
+                    <ul class="navbar-nav ms-auto align-items-stretch">
+                        <li class="nav-item">
+                            @if (ViewData["IsAdopcionPage"] as bool? == true)
+                            {
+                                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                                {
+                                    <a class="nav-link d-none d-lg-block px-4 py-3 text-white text-decoration-none"
+                                       asp-controller="IA" asp-action="HacerMatch">
+                                        <span class="ms-1">🐾 Hacer Match</span>
+                                    </a>
+                                }
+                            }
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link px-4 py-3" href="#">Showcase</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-4 py-3" href="#">Develop</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-4 py-3" asp-controller="Adopcion" asp-action="VistaPublicacion">Tutorials</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-4 py-3" asp-controller="Adopcion" asp-action="VistaAdopcion">Adoptame</a>
+                        </li>
+
+                        <li class="nav-item">
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <div class="dropdown">
+                                    <a class="nav-link px-4 py-3 custom-bg2 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span>@User.Identity.Name</span>
+                                        <i class="bi bi-person ms-1"></i>
+                                    </a>
+
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" asp-controller="Perfil" asp-action="VistaPerfil">👤 Perfil</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Configuracion">⚙️ Configuración</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">🚪 Getting Finish</a></li>
+                                    </ul>
+                                </div>
+                            }
+                            else
+                            {
+                                <a class="nav-link px-4 py-3 custom-bg" asp-controller="Account" asp-action="Login">
+                                    Getting Started                                        
+                                </a>
+                            }
+                        </li>
+
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+
+    </header>
+    <div class="container-fluid px-0">
+        <main role="main" class="pb-0">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted bg-wolf-gray">
+        <div class="container">
+            &copy; 2025 - PetMatch - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    @await Html.PartialAsync("_ModalBuscar")
+</body>
+</html>
