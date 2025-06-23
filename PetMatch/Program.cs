@@ -115,6 +115,15 @@ builder.Services.AddAuthorization(options =>
               .RequireClaim(ClaimTypes.Email, email => email.EndsWith("@miempresa.com")));*/
 });
 
+// Obtener el puerto que Render asigna, si no existe usa 5000 por defecto para desarrollo local
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+
+// Configurar Kestrel para que escuche en el puerto asignado
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(port));
+});
+
 // SERVICIOS PARA CONSUMO DE API-OPENAI-AZURE
 builder.Services.Configure<AzureOpenAIConfig>(builder.Configuration.GetSection("AzureOpenAI"));
 builder.Services.AddSingleton<AzureOpenAIClient>(sp =>
