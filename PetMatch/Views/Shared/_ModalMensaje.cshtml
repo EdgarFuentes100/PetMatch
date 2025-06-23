@@ -1,0 +1,59 @@
+﻿@{
+    var mensaje = TempData["Mensaje"] as string;
+    var esExito = TempData["EsExito"] as bool? ?? false;
+    var redireccion = TempData["RedirigirA"] as string;
+}
+
+@if (!string.IsNullOrEmpty(mensaje))
+{
+    <div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header border-0 justify-content-center pb-0">
+                    <div class="rounded-circle bg-@(esExito ? "success" : "danger") d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <span class="text-white fs-2 fw-bold">
+                            @(esExito ? "✓" : "✕")
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-body text-center pt-2">
+                    <h5 class="modal-title fw-semibold mb-3" id="mensajeModalLabel">
+                        @(esExito ? "Éxito" : "Error")
+                    </h5>
+                    <p class="mb-0 fs-6 text-secondary">
+                        @mensaje
+                    </p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center pt-0">
+                    <button id="btnCerrarModal" type="button" class="btn btn-@(esExito ? "success" : "danger") px-4 py-2 rounded-pill" data-bs-dismiss="modal">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var modalEl = document.getElementById("mensajeModal");
+            var modal = new bootstrap.Modal(modalEl);
+            modal.show();
+
+            modalEl.addEventListener('hidden.bs.modal', function () {
+                var destino = '@redireccion';
+                if (destino && destino.length > 0) {
+                    window.location.href = destino;
+                }
+            });
+
+            // Opcional: redirigir también al hacer clic en OK
+            document.getElementById("btnCerrarModal").addEventListener("click", function () {
+                var destino = '@redireccion';
+                if (destino && destino.length > 0) {
+                    window.location.href = destino;
+                }
+            });
+        });
+    </script>
+}

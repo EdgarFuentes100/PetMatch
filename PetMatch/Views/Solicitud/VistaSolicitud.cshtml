@@ -7,6 +7,8 @@
     var usuarioEmail = User.FindFirst(ClaimTypes.Email)?.Value ?? "Correo no disponible";
 }
 
+@await Html.PartialAsync("_ModalMensaje")
+
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -47,8 +49,9 @@
                     <div class="col-md-7 p-5">
                         <h5 class="mb-4">📩 Enviar solicitud de adopción</h5>
 
-                        <form asp-controller="Adopcion" asp-action="EnviarSolicitud" method="post">
-                            <input type="hidden" name="publicacionId" value="@Model.PublicacionId" />
+                        <form asp-controller="Solicitud" asp-action="EnviarSolicitud" method="post">
+                            <input type="hidden" name="MascotaId" value="@Model.Mascota.MascotaId" />
+                            <input type="hidden" name="idPublicacion" value="@Model.PublicacionId" />
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Nombre completo</label>
@@ -79,9 +82,9 @@
                             </div>
                         </form>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
+
