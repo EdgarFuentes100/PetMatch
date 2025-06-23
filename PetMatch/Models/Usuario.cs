@@ -19,6 +19,6 @@ namespace PetMatch.Models
         // Navegaciones
         public Perfil? Perfil { get; set; }
         public ICollection<Publicacion> Publicaciones { get; set; } = new List<Publicacion>();
-        public ICollection<Adopcion> Adopciones { get; set; } = new List<Adopcion>();
+        public ICollection<Solicitud> Solicitudes { get; set; } = new List<Solicitud>();
     }
 }

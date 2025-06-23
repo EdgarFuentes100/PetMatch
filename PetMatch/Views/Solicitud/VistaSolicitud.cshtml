@@ -1,0 +1,87 @@
+﻿@model PetMatch.Models.Publicacion
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Adoptar a " + Model.Mascota.Nombre;
+    var usuarioNombre = User.Identity?.Name ?? "Usuario no identificado";
+    var usuarioEmail = User.FindFirst(ClaimTypes.Email)?.Value ?? "Correo no disponible";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="row g-0">
+
+                    <!-- Columna izquierda: Información de Luna -->
+                    <div class="col-md-5 bg-light rounded-start-4 p-4 d-flex flex-column align-items-center text-center">
+                        <!-- Foto -->
+                        <div class="ratio ratio-1x1 mb-3" style="max-width: 220px;">
+                            <img src="@Model.Mascota.FotoUrl"
+                                 class="rounded-circle border border-secondary object-fit-cover w-100 h-100"
+                                 alt="Foto de @Model.Mascota.Nombre">
+                        </div>
+
+                        <!-- Nombre y tipo -->
+                        <h4 class="fw-bold mb-1">@Model.Mascota.Nombre</h4>
+                        <p class="text-muted mb-3">@Model.Mascota.TipoMascota.Nombre</p>
+
+                        <!-- Detalles -->
+                        <ul class="list-unstyled text-start w-100 small mb-4">
+                            <li><strong>Edad:</strong> @Model.Mascota.EdadMeses meses</li>
+                            <li><strong>Sexo:</strong> @(Model.Mascota.Sexo == 'M' ? "Macho" : "Hembra")</li>
+                            <li><strong>Tamaño:</strong> @Model.Mascota.Tamano</li>
+                            <li><strong>Temperamento:</strong> @Model.Mascota.Temperamento</li>
+                            <li><strong>Publicado por:</strong> @Model.Publicador.Nombre</li>
+                            <li><strong>Fecha publicación:</strong> @Model.FechaPublicacion.ToString("dd MMM yyyy")</li>
+                        </ul>
+
+                        <!-- Historia -->
+                        <div class="bg-white p-3 border rounded text-start w-100">
+                            <h6 class="fw-semibold mb-2">📖 Historia de @Model.Mascota.Nombre</h6>
+                            <p class="mb-0 small">@Model.Historia</p>
+                        </div>
+                    </div>
+
+                    <!-- Columna derecha: Solicitud de adopción -->
+                    <div class="col-md-7 p-5">
+                        <h5 class="mb-4">📩 Enviar solicitud de adopción</h5>
+
+                        <form asp-controller="Adopcion" asp-action="EnviarSolicitud" method="post">
+                            <input type="hidden" name="publicacionId" value="@Model.PublicacionId" />
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Nombre completo</label>
+                                <input type="text" class="form-control" value="@usuarioNombre" readonly />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Correo electrónico</label>
+                                <input type="email" class="form-control" value="@usuarioEmail" readonly />
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold" for="telefono">Teléfono</label>
+                                <input type="tel" name="telefono" id="telefono" class="form-control" placeholder="+503 7000-0000" required />
+                            </div>
+
+                            <!-- Compromiso de adopción -->
+                            <div class="bg-light border p-3 rounded mb-4 small">
+                                <strong>📜 Compromiso de adopción:</strong><br />
+                                Al enviar esta solicitud, confirmas que estás dispuesto a brindar un hogar responsable y amoroso.
+                                Esta acción será compartida con el publicador para iniciar contacto.
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-send me-1"></i> Enviar solicitud
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -35,3 +35,21 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+//VISTA PARA VER LA IMAGEN PREVIA 
+const fotoInput = document.getElementById('fotoInput');
+const previewImg = document.getElementById('previewImg');
+
+fotoInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewImg.src = e.target.result;
+            previewImg.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+    } else {
+        previewImg.style.display = 'none';
+        previewImg.src = '#';
+    }
+});

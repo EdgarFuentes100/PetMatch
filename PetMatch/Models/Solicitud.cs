@@ -1,8 +1,8 @@
 ﻿namespace PetMatch.Models
 {
-    public class Adopcion
+    public class Solicitud
     {
-        public int AdopcionId { get; set; }
+        public int SolicitudId { get; set; }
 
         // FK a Mascota
         public int MascotaId { get; set; }

@@ -6,11 +6,11 @@ using PetMatch.Models;
 
 namespace PetMatch.Controllers
 {
-    public class AdopcionController : Controller
+    public class SolicitudController : Controller
     {
         private readonly AppDbContext _context;
 
-        public AdopcionController(AppDbContext context)
+        public SolicitudController(AppDbContext context)
         {
             _context = context;
         }
@@ -21,7 +21,7 @@ namespace PetMatch.Controllers
         {
             // 1) Las publicaciones que quieres mostrar
             var publicaciones = await _context.Publicaciones
-                .Where(pub => !_context.Adopcion.Any(ado => ado.MascotaId == pub.MascotaId))
+                .Where(pub => !_context.Solicitud.Any(ado => ado.MascotaId == pub.MascotaId))
                 .Include(p => p.Mascota)
                 .ThenInclude(m => m.TipoMascota)
                 .Include(p => p.Publicador)
@@ -30,10 +30,18 @@ namespace PetMatch.Controllers
             return View(publicaciones);
         }
 
-        [AllowAnonymous]
-        public async Task<IActionResult> VistaPublicacion() 
+        public IActionResult VistaSolicitud(int id)
         {
-            return View();
+            var publicacion = _context.Publicaciones
+                .Include(p => p.Mascota)
+                    .ThenInclude(m => m.TipoMascota)
+                .Include(p => p.Publicador)
+                .FirstOrDefault(p => p.PublicacionId == id);
+
+            if (publicacion == null)
+                return NotFound();
+
+            return View(publicacion); // Vista Adoptar.cshtml
         }
 
     }

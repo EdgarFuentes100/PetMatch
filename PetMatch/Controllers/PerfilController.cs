@@ -8,7 +8,6 @@ using System.Security.Claims;
 
 namespace PetMatch.Controllers
 {
-    [Authorize] // ← Esto protege toda la clase
     public class PerfilController : Controller
     {
         private readonly AppDbContext _context;

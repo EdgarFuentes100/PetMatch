@@ -1,0 +1,96 @@
+﻿<div class="container my-0">
+    <div class="card shadow border-0 rounded-4 p-4">
+        <h2 class="text-center fw-bold mb-4">🐾 Publicar adopción</h2>
+
+        <form>
+            <!-- Sección: Publicación -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Título</label>
+                    <input type="text" class="form-control" placeholder="Ej: Busco hogar para Rocky">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Fecha de publicación</label>
+                    <input type="date" class="form-control">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Historia</label>
+                <textarea class="form-control" rows="2" placeholder="Breve historia del animal"></textarea>
+            </div>
+
+            <!-- Tipo de mascota, Nombre y Edad en la misma fila -->
+            <div class="row mb-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Tipo de mascota</label>
+                    <select class="form-select" id="tipoMascotaSelect">
+                        <option selected disabled>Seleccionar</option>
+                        <option value="1">Perro</option>
+                        <option value="2">Gato</option>
+                        <option value="3">Conejo</option>
+                        <option value="4">Ave</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" class="form-control" placeholder="Nombre de la mascota">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Edad (meses)</label>
+                    <input type="number" class="form-control" min="0" placeholder="Ej: 12">
+                </div>
+            </div>
+
+            <!-- Resto de campos en filas separadas -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Sexo</label>
+                    <select class="form-select">
+                        <option selected disabled>Seleccionar</option>
+                        <option>Macho</option>
+                        <option>Hembra</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Tamaño</label>
+                    <select class="form-select">
+                        <option selected disabled>Seleccionar</option>
+                        <option>Pequeño</option>
+                        <option>Mediano</option>
+                        <option>Grande</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Temperamento</label>
+                    <select class="form-select">
+                        <option selected disabled>Seleccionar</option>
+                        <option>Tranquilo</option>
+                        <option>Juguetón</option>
+                        <option>Protector</option>
+                        <option>Activo</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Foto y preview lado a lado en desktop, apilados con margen en móvil -->
+            <div class="row align-items-center mb-4">
+                <div class="col-12 col-md-6 mb-3 mb-md-0">
+                    <label class="form-label">Foto</label>
+                    <input type="file" class="form-control" accept="image/*" id="fotoInput">
+                </div>
+                <div class="col-12 col-md-6 text-center">
+                    <img id="previewImg" src="#" alt="Vista previa" class="img-fluid rounded-3 shadow-sm" style="max-height: 200px; display:none;">
+                </div>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary fw-bold px-4">Insertar</button>
+            </div>
+        </form>
+    </div>
+</div>
