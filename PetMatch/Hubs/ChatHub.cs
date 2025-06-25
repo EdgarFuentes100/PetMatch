@@ -1,5 +1,4 @@
-﻿// Hubs/ChatHub.cs
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 
 public class ChatHub : Hub
@@ -8,10 +7,10 @@ public class ChatHub : Hub
     {
         var emisorId = Context.UserIdentifier;
 
-        // Enviar el mensaje al receptor
-        await Clients.User(receptorId).SendAsync("RecibirMensaje", emisorId, mensaje);
+        // Enviar mensaje al receptor, con esPropio = false
+        await Clients.User(receptorId).SendAsync("RecibirMensaje", emisorId, mensaje, false);
 
-        // Enviar también al emisor (para que vea su mensaje reflejado)
-        await Clients.User(emisorId).SendAsync("RecibirMensaje", emisorId, mensaje);
+        // Enviar mensaje al emisor, con esPropio = true
+        await Clients.User(emisorId).SendAsync("RecibirMensaje", emisorId, mensaje, true);
     }
 }

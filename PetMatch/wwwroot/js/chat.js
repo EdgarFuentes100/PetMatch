@@ -3,6 +3,7 @@
     .build();
 
 let receptorId = null;
+let nombreReceptor = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatModalEl = document.getElementById('chatModal');
@@ -14,10 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.abrir-chat').forEach(btn => {
         btn.addEventListener('click', () => {
-            const nombre = btn.getAttribute('data-nombre');
+            nombreReceptor = btn.getAttribute('data-nombre');
             receptorId = btn.getAttribute('data-id');
 
-            chatNombre.textContent = nombre;
+            chatNombre.textContent = nombreReceptor;
             mensajesLista.innerHTML = '';
             mensajeInput.value = '';
             chatModal.show();
@@ -29,23 +30,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!texto || !receptorId) return;
 
         await connection.invoke("EnviarMensaje", receptorId, texto);
-
-        const li = document.createElement('li');
-        li.textContent = `Tú: ${texto}`;
-        li.classList.add('text-end', 'mb-2');
-        mensajesLista.appendChild(li);
-
+        // No agregamos el mensaje aquí, el servidor se lo enviará de vuelta con el flag esPropio=true
         mensajeInput.value = '';
-        mensajesLista.scrollTop = mensajesLista.scrollHeight;
     });
 
-    connection.on("RecibirMensaje", (emisorId, mensaje) => {
-        const li = document.createElement('li');
-        li.textContent = `${emisorId === receptorId ? chatNombre.textContent : 'Tú'}: ${mensaje}`;
-        li.classList.add(emisorId === receptorId ? 'text-start' : 'text-end', 'mb-2');
+    connection.on("RecibirMensaje", (emisorId, mensaje, esPropio) => {
+        const nombre = esPropio ? "Tú" : nombreReceptor;
+        agregarMensaje(nombre, mensaje, esPropio);
+    });
+
+    connection.start().catch(err => console.error("SignalR error:", err));
+
+    function agregarMensaje(nombre, texto, esPropio) {
+        const li = document.createElement("li");
+        li.className = `mb-3 d-flex justify-content-${esPropio ? "end" : "start"}`;
+        li.innerHTML = `
+            <div class="d-flex align-items-start ${esPropio ? "text-end" : ""}">
+                ${!esPropio ? '<i class="bi bi-person-circle fs-3 me-2 text-primary"></i>' : ""}
+                <div>
+                    <div class="fw-semibold">${escapeHtml(nombre)}</div>
+                    <div class="${esPropio ? "bg-primary text-white" : "bg-light"} rounded p-2 shadow-sm">
+                        ${escapeHtml(texto)}
+                    </div>
+                </div>
+                ${esPropio ? '<i class="bi bi-person-circle fs-3 ms-2 text-secondary"></i>' : ""}
+            </div>
+        `;
         mensajesLista.appendChild(li);
         mensajesLista.scrollTop = mensajesLista.scrollHeight;
-    });
+    }
 
-    connection.start().catch(err => console.error(err.toString()));
+    function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+    }
 });
