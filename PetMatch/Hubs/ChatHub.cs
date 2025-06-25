@@ -1,16 +1,50 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using System.Threading.Tasks;
-
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using PetMatch.Context;
+using PetMatch.Models;
+using System.Security.Claims;
+[Authorize]
 public class ChatHub : Hub
 {
-    public async Task EnviarMensaje(string receptorId, string mensaje)
+    private readonly ISesionChatService _sesionChat;
+    private readonly AppDbContext _context;
+
+    public ChatHub(ISesionChatService sesionChat, AppDbContext context)
     {
-        var emisorId = Context.UserIdentifier;
+        _sesionChat = sesionChat;
+        _context = context;
+    }
 
-        // Enviar mensaje al receptor, con esPropio = false
-        await Clients.User(receptorId).SendAsync("RecibirMensaje", emisorId, mensaje, false);
+    public Task SeleccionarReceptor(int receptorId)
+    {
+        int emisorId = int.Parse(Context.User.FindFirst("UserId")!.Value);
+        _sesionChat.EstablecerReceptor(emisorId, receptorId);
+        return Task.CompletedTask;
+    }
 
-        // Enviar mensaje al emisor, con esPropio = true
-        await Clients.User(emisorId).SendAsync("RecibirMensaje", emisorId, mensaje, true);
+    public async Task EnviarMensaje(string mensaje)
+    {
+        int emisorId = int.Parse(Context.User.FindFirst("UserId")!.Value);
+        var receptorId = _sesionChat.ObtenerReceptor(emisorId);
+
+        if (receptorId == null)
+            return;
+
+        // Guardar mensaje en base de datos
+        var nuevoMensaje = new Mensaje
+        {
+            EmisorId = emisorId,
+            ReceptorId = receptorId.Value,
+            Contenido = mensaje,
+            FechaEnvio = DateTime.UtcNow
+        };
+
+        _context.Mensajes.Add(nuevoMensaje);
+        await _context.SaveChangesAsync();
+
+        // Enviar a clientes
+        await Clients.User(receptorId.ToString()).SendAsync("RecibirMensaje", emisorId, mensaje, false);
+        await Clients.User(emisorId.ToString()).SendAsync("RecibirMensaje", emisorId, mensaje, true);
     }
 }

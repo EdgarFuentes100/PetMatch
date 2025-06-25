@@ -88,7 +88,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddSignalR();
-builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
+builder.Services.AddSingleton<IUserIdProvider, ServiceCustomUserId>();
 
 // AUTORIZACIÓN GLOBAL
 builder.Services.AddControllersWithViews(options =>
@@ -131,6 +131,10 @@ builder.Services.AddSingleton<AzureOpenAIClient>(sp =>
 builder.Services.AddScoped<ServiceTransactionHelper>();
 builder.Services.AddScoped<ServiceIA>();
 builder.Services.AddScoped<ServiceGoogleValidator>();
+
+///INTERFAZ CON SERVICIOS
+builder.Services.AddSingleton<ISesionChatService, ServiceChatSession>();
+
 
 // CONEXION A BASE DE DATOS SQL SERVER 
 var connection = builder.Configuration.GetConnectionString("Connection");

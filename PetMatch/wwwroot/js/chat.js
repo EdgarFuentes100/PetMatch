@@ -2,7 +2,6 @@
     .withUrl("/chathub")
     .build();
 
-let receptorId = null;
 let nombreReceptor = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,23 +13,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const enviarBtn = document.getElementById('enviarBtn');
 
     document.querySelectorAll('.abrir-chat').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             nombreReceptor = btn.getAttribute('data-nombre');
-            receptorId = btn.getAttribute('data-id');
+            const receptorId = btn.getAttribute('data-id');
 
             chatNombre.textContent = nombreReceptor;
             mensajesLista.innerHTML = '';
             mensajeInput.value = '';
             chatModal.show();
+
+            // Solo seleccionas al receptor. No guardas ni usas IDs en JS.
+            await connection.invoke("SeleccionarReceptor", parseInt(receptorId));
         });
     });
 
     enviarBtn.addEventListener('click', async () => {
         const texto = mensajeInput.value.trim();
-        if (!texto || !receptorId) return;
+        if (!texto) return;
 
-        await connection.invoke("EnviarMensaje", receptorId, texto);
-        // No agregamos el mensaje aquí, el servidor se lo enviará de vuelta con el flag esPropio=true
+        await connection.invoke("EnviarMensaje", texto);
         mensajeInput.value = '';
     });
 

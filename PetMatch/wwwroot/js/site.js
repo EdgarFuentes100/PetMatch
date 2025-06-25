@@ -35,21 +35,41 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
-//VISTA PARA VER LA IMAGEN PREVIA 
-const fotoInput = document.getElementById('fotoInput');
-const previewImg = document.getElementById('previewImg');
 
-fotoInput.addEventListener('change', function () {
-    const file = this.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            previewImg.src = e.target.result;
-            previewImg.style.display = 'block';
-        }
-        reader.readAsDataURL(file);
-    } else {
-        previewImg.style.display = 'none';
-        previewImg.src = '#';
+document.addEventListener("DOMContentLoaded", function () {
+    const fotoInput = document.getElementById('fotoInput');
+    const previewImg = document.getElementById('previewImg');
+
+    if (!fotoInput || !previewImg) {
+        console.warn("Elementos fotoInput o previewImg no encontrados.");
+        return;
     }
+
+    fotoInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            previewImg.style.display = 'none';
+            previewImg.src = '#';
+        }
+    });
 });
+
+///IGNORA UN MENSJAE QUE DA AL DEBUGEAR  
+if (window.location.hostname === "localhost") {
+    window.addEventListener("error", function (e) {
+        if (
+            e.message?.includes("Permissions") &&
+            e.message?.includes("Illegal invocation")
+        ) {
+            console.warn("Error de permisos silenciado en depuración.");
+            e.preventDefault(); // Detiene el error
+        }
+    });
+}
