@@ -1,0 +1,39 @@
+﻿@model List<Mensaje>
+
+<div class="container my-4">
+    <h2 class="mb-4">Mis chats recientes</h2>
+
+    @if (!Model.Any())
+    {
+        <p>No tienes mensajes aún.</p>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var mensaje in Model)
+            {
+                var otroUsuario = mensaje.EmisorId == int.Parse(User.FindFirst("UsuarioId").Value)
+                ? mensaje.Receptor
+                : mensaje.Emisor;
+
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>@otroUsuario.Nombre</strong>
+                        <br />
+                        <small class="text-muted">@mensaje.Contenido</small>
+                    </div>
+                    <a class="btn btn-sm btn-primary abrir-chat"
+                       data-id="@otroUsuario.UsuarioId"
+                       data-nombre="@otroUsuario.Nombre">
+                        <i class="bi bi-chat-dots"></i> Abrir chat
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script src="~/js/chat.js"></script>
+}
