@@ -1,5 +1,6 @@
 ﻿@model List<Mensaje>
-
+<!-- Incluir el modal -->
+@Html.Partial("_ModalChat")
 <div class="container my-4">
     <h2 class="mb-4">Mis chats recientes</h2>
 
@@ -12,7 +13,7 @@
         <ul class="list-group">
             @foreach (var mensaje in Model)
             {
-                var otroUsuario = mensaje.EmisorId == int.Parse(User.FindFirst("UsuarioId").Value)
+                var otroUsuario = mensaje.EmisorId == int.Parse(User.FindFirst("UserId").Value)
                 ? mensaje.Receptor
                 : mensaje.Emisor;
 
@@ -32,8 +33,3 @@
         </ul>
     }
 </div>
-
-@section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
-    <script src="~/js/chat.js"></script>
-}
