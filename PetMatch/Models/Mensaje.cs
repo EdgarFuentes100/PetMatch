@@ -13,5 +13,7 @@
 
         public string Contenido { get; set; } = default!;
         public DateTime FechaEnvio { get; set; }
+
+        public bool Leido { get; set; } = false;
     }
 }

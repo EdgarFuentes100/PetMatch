@@ -5,5 +5,6 @@
         public string Contenido { get; set; } = string.Empty;
         public DateTime FechaEnvio { get; set; }
         public bool EsPropio { get; set; }
+        public bool Leido { get; set; }  // Nuevo
     }
 }

@@ -3,6 +3,8 @@
     .build();
 
 let nombreReceptor = null;
+let receptorId = null;
+let userId = null; // ID del usuario actual (se debe asignar desde backend)
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatModalEl = document.getElementById('chatModal');
@@ -13,18 +15,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const enviarBtn = document.getElementById('enviarBtn');
     const nuevoMensajeBtn = document.getElementById('nuevoMensajeBtn');
 
-    // Detectar scroll manual para ocultar botón si el scroll está abajo
+    // 👇 Asignar userId (reemplaza por el valor real desde backend)
+    // userId = parseInt(document.getElementById('userIdHidden').value);
+
     mensajesLista.addEventListener('scroll', () => {
         if (estaScrolleadoAbajo()) {
             nuevoMensajeBtn.classList.add('d-none');
         }
     });
 
-    // Abrir chat
     document.querySelectorAll('.abrir-chat').forEach(btn => {
         btn.addEventListener('click', () => {
             nombreReceptor = btn.getAttribute('data-nombre');
-            const receptorId = parseInt(btn.getAttribute('data-id'));
+            receptorId = parseInt(btn.getAttribute('data-id'));
 
             chatNombre.textContent = nombreReceptor;
             mensajesLista.innerHTML = '';
@@ -33,18 +36,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             chatModalEl.addEventListener('shown.bs.modal', async function handleShown() {
                 chatModalEl.removeEventListener('shown.bs.modal', handleShown);
+
                 try {
                     await connection.invoke("SeleccionarReceptor", receptorId);
-                    const historial = await connection.invoke("ObtenerHistorial", receptorId);
 
-                    historial.forEach(mensaje => {
-                        const nombre = mensaje.esPropio ? "Tú" : nombreReceptor;
-                        agregarMensaje(nombre, mensaje.contenido, mensaje.esPropio);
+                    const result = await connection.invoke("ObtenerHistorial", receptorId);
+                    userId = result.userId;
+
+                    result.mensajes.forEach(m => {
+                        const nombre = m.esPropio ? "Tú" : nombreReceptor;
+                        agregarMensaje(nombre, m.contenido, m.esPropio, m.leido);
                     });
 
-                    requestAnimationFrame(() => {
-                        mensajesLista.scrollTop = mensajesLista.scrollHeight;
-                    });
+                    mensajesLista.scrollTop = mensajesLista.scrollHeight;
+
+                    // Marcar como leídos los mensajes del otro
+                    await connection.invoke("MarcarMensajesComoLeidos", receptorId, userId);
                 } catch (err) {
                     console.error("Error cargando historial:", err);
                 }
@@ -52,7 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Enviar mensaje
+    chatModalEl.addEventListener('hidden.bs.modal', async () => {
+        try {
+            await connection.invoke('CerrarChat');
+        } catch (err) {
+            console.error('Error al cerrar chat:', err);
+        }
+    });
+
     enviarBtn.addEventListener('click', async () => {
         const texto = mensajeInput.value.trim();
         if (!texto) return;
@@ -65,37 +79,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Recibir mensaje
-    connection.on("RecibirMensaje", (emisorId, mensaje, esPropio) => {
+    connection.on("RecibirMensaje", (emisorId, mensaje, esPropio, leido) => {
         const nombre = esPropio ? "Tú" : nombreReceptor;
-        agregarMensaje(nombre, mensaje, esPropio);
+        agregarMensaje(nombre, mensaje, esPropio, leido);
 
-        if (esPropio) {
-            // Si envío, hacer scroll automático abajo
-            mensajesLista.scrollTop = mensajesLista.scrollHeight;
+        if (!esPropio && !estaScrolleadoAbajo()) {
+            nuevoMensajeBtn.classList.remove('d-none');
         } else {
-            // Si recibo y no estoy abajo, mostrar botón
-            if (!estaScrolleadoAbajo()) {
-                nuevoMensajeBtn.classList.remove('d-none');
-            } else {
-                // Si estoy abajo, scroll automático
-                mensajesLista.scrollTop = mensajesLista.scrollHeight;
-            }
+            mensajesLista.scrollTop = mensajesLista.scrollHeight;
         }
     });
 
-    // Click en botón para bajar al final
+    // ✅ Este evento solo lo recibe el EMISOR para marcar ✔✔
+    connection.on("ActualizarEstadoLeidos", (emisorId) => {
+        const mensajes = mensajesLista.querySelectorAll('li[data-espropio="true"] .check-leido');
+        mensajes.forEach(span => span.textContent = '✔✔');
+    });
+
     nuevoMensajeBtn.addEventListener('click', () => {
         mensajesLista.scrollTop = mensajesLista.scrollHeight;
         nuevoMensajeBtn.classList.add('d-none');
     });
 
-    // Función para agregar mensaje
-    function agregarMensaje(nombre, texto, esPropio) {
+    function agregarMensaje(nombre, texto, esPropio, leido = false) {
         const li = document.createElement("li");
         li.className = `mb-3 d-flex justify-content-${esPropio ? "end" : "start"}`;
+        li.setAttribute('data-espropio', esPropio.toString());
 
         const estadoTexto = esPropio ? "Enviado" : "Recibido";
+        const check = esPropio ? (leido ? '✔✔' : '✔') : '';
 
         li.innerHTML = `
             <div class="d-flex align-items-start ${esPropio ? "text-end" : ""}">
@@ -103,7 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div>
                     <div class="fw-semibold d-flex justify-content-between align-items-center">
                         <span>${escapeHtml(nombre)}</span>
-                        <small class="text-muted ms-2" style="font-size: 0.75rem;">${estadoTexto}</small>
+                        <small class="text-muted ms-2" style="font-size: 0.75rem;">
+                            ${estadoTexto} ${esPropio ? `<span class="check-leido">${check}</span>` : ''}
+                        </small>
                     </div>
                     <div class="${esPropio ? "bg-primary text-white" : "bg-light"} rounded p-2 shadow-sm">
                         ${escapeHtml(texto)}
@@ -115,18 +129,15 @@ document.addEventListener('DOMContentLoaded', () => {
         mensajesLista.appendChild(li);
     }
 
-    // Verifica si scroll está abajo (dentro de un margen de 10px)
     function estaScrolleadoAbajo() {
         return mensajesLista.scrollTop + mensajesLista.clientHeight >= mensajesLista.scrollHeight - 10;
     }
 
-    // Escapar texto para evitar inyección HTML
     function escapeHtml(text) {
         const div = document.createElement("div");
         div.textContent = text;
         return div.innerHTML;
     }
 
-    // Iniciar conexión SignalR
     connection.start().catch(err => console.error("SignalR error:", err));
 });
