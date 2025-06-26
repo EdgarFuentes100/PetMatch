@@ -5,8 +5,15 @@
                 <h5 class="modal-title">Chat con <span id="chatNombre"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body">
-                <ul id="mensajesLista" class="list-unstyled mb-0"></ul>
+            <div class="modal-body position-relative p-0">
+                <ul id="mensajesLista" class="list-unstyled mb-0 px-3 py-2" style="overflow-y:auto; max-height:400px;"></ul>
+
+                <!-- Botón flotante para nuevo mensaje -->
+                <button id="nuevoMensajeBtn"
+                        class="btn btn-warning btn-sm position-absolute bottom-0 end-0 m-2 d-none"
+                        style="z-index: 10;">
+                    <i class="bi bi-arrow-down-circle-fill"></i> Nuevo mensaje
+                </button>
             </div>
             <div class="modal-footer d-flex gap-2">
                 <input type="text" id="mensajeInput" class="form-control" placeholder="Escribe tu mensaje...">
