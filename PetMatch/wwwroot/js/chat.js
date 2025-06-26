@@ -12,36 +12,57 @@ document.addEventListener('DOMContentLoaded', () => {
     const mensajeInput = document.getElementById('mensajeInput');
     const enviarBtn = document.getElementById('enviarBtn');
 
+    // Botones para abrir chat
     document.querySelectorAll('.abrir-chat').forEach(btn => {
         btn.addEventListener('click', async () => {
             nombreReceptor = btn.getAttribute('data-nombre');
-            const receptorId = btn.getAttribute('data-id');
+            const receptorId = parseInt(btn.getAttribute('data-id'));
 
             chatNombre.textContent = nombreReceptor;
             mensajesLista.innerHTML = '';
             mensajeInput.value = '';
             chatModal.show();
 
-            // Solo seleccionas al receptor. No guardas ni usas IDs en JS.
-            await connection.invoke("SeleccionarReceptor", parseInt(receptorId));
+            try {
+                // Establecer sesión
+                await connection.invoke("SeleccionarReceptor", receptorId);
+
+                // Traer historial ya marcado con EsPropio por el servidor
+                const historial = await connection.invoke("ObtenerHistorial", receptorId);
+
+                historial.forEach(mensaje => {
+                    const nombre = mensaje.esPropio ? "Tú" : nombreReceptor;
+                    agregarMensaje(nombre, mensaje.contenido, mensaje.esPropio);
+                });
+            } catch (err) {
+                console.error("Error cargando historial:", err);
+            }
         });
     });
 
+    // Enviar mensaje
     enviarBtn.addEventListener('click', async () => {
         const texto = mensajeInput.value.trim();
         if (!texto) return;
 
-        await connection.invoke("EnviarMensaje", texto);
-        mensajeInput.value = '';
+        try {
+            await connection.invoke("EnviarMensaje", texto);
+            mensajeInput.value = '';
+        } catch (err) {
+            console.error("Error al enviar:", err);
+        }
     });
 
+    // Escuchar mensajes
     connection.on("RecibirMensaje", (emisorId, mensaje, esPropio) => {
         const nombre = esPropio ? "Tú" : nombreReceptor;
         agregarMensaje(nombre, mensaje, esPropio);
     });
 
+    // Iniciar conexión
     connection.start().catch(err => console.error("SignalR error:", err));
 
+    // Función de UI para mostrar mensaje
     function agregarMensaje(nombre, texto, esPropio) {
         const li = document.createElement("li");
         li.className = `mb-3 d-flex justify-content-${esPropio ? "end" : "start"}`;
@@ -61,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mensajesLista.scrollTop = mensajesLista.scrollHeight;
     }
 
+    // Evita inyecciones de HTML
     function escapeHtml(text) {
         const div = document.createElement("div");
         div.textContent = text;

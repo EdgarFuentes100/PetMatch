@@ -11,27 +11,6 @@ public class ChatController : Controller
         _context = context;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> ObtenerMensajes(int receptorId)
-    {
-        int emisorId = int.Parse(User.FindFirst("UsuarioId")!.Value);
-
-        var mensajes = await _context.Mensajes
-            .Where(m =>
-                (m.EmisorId == emisorId && m.ReceptorId == receptorId) ||
-                (m.EmisorId == receptorId && m.ReceptorId == emisorId))
-            .OrderBy(m => m.FechaEnvio)
-            .Select(m => new
-            {
-                contenido = m.Contenido,
-                fecha = m.FechaEnvio.ToString("g"),
-                emisor = m.EmisorId
-            })
-            .ToListAsync();
-
-        return Json(mensajes); // <-- NO RENDERIZA VISTA, solo datos
-    }
-
     public async Task<IActionResult> MisChats()
     {
         var userIdClaim = User.FindFirst("UserId");
