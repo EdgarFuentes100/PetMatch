@@ -4,7 +4,7 @@
 
 let nombreReceptor = null;
 let receptorId = null;
-let userId = null; // ID del usuario actual (se debe asignar desde backend)
+let userId = null; // ID del usuario actual
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatModalEl = document.getElementById('chatModal');
@@ -15,47 +15,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const enviarBtn = document.getElementById('enviarBtn');
     const nuevoMensajeBtn = document.getElementById('nuevoMensajeBtn');
 
-    // 👇 Asignar userId (reemplaza por el valor real desde backend)
-    // userId = parseInt(document.getElementById('userIdHidden').value);
-
     mensajesLista.addEventListener('scroll', () => {
         if (estaScrolleadoAbajo()) {
             nuevoMensajeBtn.classList.add('d-none');
         }
     });
 
+    function abrirModalChat(id, nombre) {
+        receptorId = id;
+        nombreReceptor = nombre;
+
+        chatNombre.textContent = nombreReceptor;
+        mensajesLista.innerHTML = '';
+        mensajeInput.value = '';
+        chatModal.show();
+
+        chatModalEl.addEventListener('shown.bs.modal', async function handleShown() {
+            chatModalEl.removeEventListener('shown.bs.modal', handleShown);
+            try {
+                await connection.invoke("SeleccionarReceptor", receptorId);
+                const result = await connection.invoke("ObtenerHistorial", receptorId);
+
+                userId = result.userId;
+
+                result.mensajes.forEach(m => {
+                    const nombreMsg = m.esPropio ? "Tú" : nombreReceptor;
+                    agregarMensaje(nombreMsg, m.contenido, m.esPropio, m.leido);
+                });
+
+                mensajesLista.scrollTop = mensajesLista.scrollHeight;
+                await connection.invoke("MarcarMensajesComoLeidos", receptorId, userId);
+            } catch (err) {
+                console.error("Error cargando historial:", err);
+            }
+        });
+    }
+
     document.querySelectorAll('.abrir-chat').forEach(btn => {
         btn.addEventListener('click', () => {
-            nombreReceptor = btn.getAttribute('data-nombre');
-            receptorId = parseInt(btn.getAttribute('data-id'));
-
-            chatNombre.textContent = nombreReceptor;
-            mensajesLista.innerHTML = '';
-            mensajeInput.value = '';
-            chatModal.show();
-
-            chatModalEl.addEventListener('shown.bs.modal', async function handleShown() {
-                chatModalEl.removeEventListener('shown.bs.modal', handleShown);
-
-                try {
-                    await connection.invoke("SeleccionarReceptor", receptorId);
-
-                    const result = await connection.invoke("ObtenerHistorial", receptorId);
-                    userId = result.userId;
-
-                    result.mensajes.forEach(m => {
-                        const nombre = m.esPropio ? "Tú" : nombreReceptor;
-                        agregarMensaje(nombre, m.contenido, m.esPropio, m.leido);
-                    });
-
-                    mensajesLista.scrollTop = mensajesLista.scrollHeight;
-
-                    // Marcar como leídos los mensajes del otro
-                    await connection.invoke("MarcarMensajesComoLeidos", receptorId, userId);
-                } catch (err) {
-                    console.error("Error cargando historial:", err);
-                }
-            });
+            const id = parseInt(btn.getAttribute('data-id'));
+            const nombre = btn.getAttribute('data-nombre');
+            abrirModalChat(id, nombre);
         });
     });
 
@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ✅ Este evento solo lo recibe el EMISOR para marcar ✔✔
     connection.on("ActualizarEstadoLeidos", (emisorId) => {
         const mensajes = mensajesLista.querySelectorAll('li[data-espropio="true"] .check-leido');
         mensajes.forEach(span => span.textContent = '✔✔');
@@ -100,6 +99,59 @@ document.addEventListener('DOMContentLoaded', () => {
         mensajesLista.scrollTop = mensajesLista.scrollHeight;
         nuevoMensajeBtn.classList.add('d-none');
     });
+
+    connection.on("RecibirMensajeNuevo", async () => {
+        await actualizarListaChats();
+    });
+
+    connection.on("ActualizarListaChats", async () => {
+        console.log("Evento ActualizarListaChats recibido");
+        await actualizarListaChats();
+    });
+
+    async function actualizarListaChats() {
+        try {
+            const chats = await connection.invoke("ObtenerMisChats");
+            const lista = document.getElementById("lista-chats");
+            const userId = parseInt(document.getElementById('userIdHidden').value);
+            lista.innerHTML = "";
+
+            chats.forEach(chat => {
+                const esNoLeido = (chat.receptorId === userId && !chat.leido);
+                const estadoMensaje = chat.emisorId === userId ? "Enviado" : "Recibido";
+
+                const li = document.createElement("li");
+                li.className = "list-group-item d-flex justify-content-between align-items-center";
+                li.setAttribute("data-id", chat.otroUsuarioId);
+
+                li.innerHTML = `
+                    <div>
+                        <strong ${esNoLeido ? 'class="text-success fw-bold"' : ''}>${chat.otroNombre}</strong>
+                        ${esNoLeido ? '<span class="badge bg-success ms-2">Nuevo mensaje</span>' : ''}
+                        <br />
+                        <small class="text-muted">${estadoMensaje} - <span style="font-style: italic;">${chat.contenido}</span></small>
+                    </div>
+                    <a class="btn btn-sm btn-primary abrir-chat"
+                       data-id="${chat.otroUsuarioId}"
+                       data-nombre="${chat.otroNombre}">
+                        <i class="bi bi-chat-dots"></i> Abrir chat
+                    </a>
+                `;
+
+                lista.appendChild(li);
+            });
+
+            document.querySelectorAll('.abrir-chat').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = parseInt(btn.getAttribute('data-id'));
+                    const nombre = btn.getAttribute('data-nombre');
+                    abrirModalChat(id, nombre);
+                });
+            });
+        } catch (error) {
+            console.error("Error al actualizar chats:", error);
+        }
+    }
 
     function agregarMensaje(nombre, texto, esPropio, leido = false) {
         const li = document.createElement("li");
@@ -139,5 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return div.innerHTML;
     }
 
-    connection.start().catch(err => console.error("SignalR error:", err));
+    connection.start()
+        .then(() => {
+            actualizarListaChats(); // 👈 Cargar lista inicial
+        })
+        .catch(err => console.error("SignalR error:", err));
 });

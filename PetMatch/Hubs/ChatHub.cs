@@ -96,6 +96,37 @@ public class ChatHub : Hub
         {
             await Clients.User(emisorId.ToString()).SendAsync("ActualizarEstadoLeidos", receptorId);
         }
+
+        // Notificar receptor y emisor para actualizar lista de chats
+        await Clients.User(receptorId.ToString()).SendAsync("RecibirMensajeNuevo");
+        await Clients.User(emisorId.ToString()).SendAsync("RecibirMensajeNuevo");
+    }
+
+    public async Task<List<MensajeResumenDTO>> ObtenerMisChats()
+    {
+        var usuarioId = ObtenerUserId();
+
+        var mensajes = await _context.Mensajes
+            .Include(m => m.Emisor)
+            .Include(m => m.Receptor)
+            .Where(m => m.EmisorId == usuarioId || m.ReceptorId == usuarioId)
+            .ToListAsync();
+
+        var chats = mensajes
+            .GroupBy(m => m.EmisorId == usuarioId ? m.ReceptorId : m.EmisorId)
+            .Select(g => g.OrderByDescending(m => m.FechaEnvio).First())
+            .Select(m => new MensajeResumenDTO
+            {
+                EmisorId = m.EmisorId,
+                ReceptorId = m.ReceptorId,
+                Contenido = m.Contenido,
+                Leido = m.Leido,
+                OtroUsuarioId = m.EmisorId == usuarioId ? m.Receptor.UsuarioId : m.Emisor.UsuarioId,
+                OtroNombre = m.EmisorId == usuarioId ? m.Receptor.Nombre : m.Emisor.Nombre
+            })
+            .ToList();
+
+        return chats;
     }
 
     public async Task MarcarMensajesComoLeidos(int emisorId, int receptorId)
@@ -116,6 +147,11 @@ public class ChatHub : Hub
 
             // Notificar al emisor original (quien envió) que sus mensajes fueron leídos
             await Clients.User(emisorId.ToString()).SendAsync("ActualizarEstadoLeidos", receptorId);
+
+            // Notificar a ambos usuarios que actualicen la lista de chats (para refrescar estados "nuevo mensaje")
+            await Clients.User(emisorId.ToString()).SendAsync("ActualizarListaChats");
+            await Clients.User(receptorId.ToString()).SendAsync("ActualizarListaChats");
+
         }
     }
 
