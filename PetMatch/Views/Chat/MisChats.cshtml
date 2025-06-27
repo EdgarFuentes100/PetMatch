@@ -4,13 +4,14 @@
 
 <div class="container my-4">
     <h2>Mis chats recientes</h2>
-    @if (!Model.Any())
-    {
-        <p>No tienes mensajes aún.</p>
-    }
-    else
-    {
-        <ul class="list-group" id="lista-chats">
+
+    <ul class="list-group" id="lista-chats">
+        @if (!Model.Any())
+        {
+            <li class="list-group-item text-muted">No tienes mensajes aún.</li>
+        }
+        else
+        {
             @foreach (var mensaje in Model)
             {
                 var otroUsuario = mensaje.EmisorId == int.Parse(User.FindFirst("UserId").Value)
@@ -29,8 +30,8 @@
                     </a>
                 </li>
             }
-        </ul>
-    }
+        }
+    </ul>
 </div>
 
 <!-- Modal del chat (asumiendo que ya lo tienes) -->
