@@ -31,21 +31,8 @@ namespace PetMatch.Controllers
         {
             ViewData["Expired"] = expired;
             ViewData["ReturnUrl"] = returnUrl;
-
-            var rutas = new string[]
-            {
-        Url.Action("Login", "Account", null, Request.Scheme),
-        Url.Action("LoginWithGoogle", "Account", null, Request.Scheme),
-        Url.Action("ExternalLoginCallback", "Account", null, Request.Scheme),
-        Url.Action("Logout", "Account", null, Request.Scheme),
-        Url.Action("AccesoDenegado", "Account", null, Request.Scheme)
-            };
-
-            ViewData["Rutas"] = rutas;
-
-            return View();
+            return View(); // Muestra la vista personalizada
         }
-
 
         [HttpPost("login/google")]
         public IActionResult LoginWithGoogle(string returnUrl = "/")
