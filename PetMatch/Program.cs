@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -22,6 +23,11 @@ builder.Configuration
 // CLAVES DE GOOGLE CONSOLE
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
 var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+// Configura el almacenamiento de llaves para que no se borren
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("keys"))  // Carpeta llamada "keys" en tu proyecto
+    .SetApplicationName("PetMatchApp");  // Nombre para identificar esta app
 
 // AUTENTICACIÓN DE GOOGLE 
 builder.Services.AddAuthentication(options =>
