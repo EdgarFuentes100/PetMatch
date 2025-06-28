@@ -145,11 +145,14 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(conn
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
 
-/*if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}^*/
+}
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
