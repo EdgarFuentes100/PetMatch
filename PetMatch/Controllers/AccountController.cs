@@ -18,13 +18,16 @@ namespace PetMatch.Controllers
         private readonly AppDbContext _db;
         private readonly ServiceTransactionHelper _tx;
         private readonly ServiceGoogleValidator _validator;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(AppDbContext db, ServiceTransactionHelper tx, ServiceGoogleValidator googleTokenValidator)
+        public AccountController(ILogger<AccountController> logger, AppDbContext db, ServiceTransactionHelper tx, ServiceGoogleValidator googleTokenValidator)
         {
+            _logger = logger;
             _db = db;
             _tx = tx;
             _validator = googleTokenValidator;
         }
+
 
         [HttpGet("Login")]
         public IActionResult Login(string returnUrl = "/", bool expired = false)
@@ -37,10 +40,13 @@ namespace PetMatch.Controllers
         [HttpPost("login/google")]
         public IActionResult LoginWithGoogle(string returnUrl = "/")
         {
+            var callbackUrl = Url.Content("~/signin-google");
+            var fullCallbackUrl = $"{Request.Scheme}://{Request.Host}{callbackUrl}";
             var props = new AuthenticationProperties
             {
                 RedirectUri = Url.Action(nameof(ExternalLoginCallback), new { returnUrl })
             };
+            _logger.LogInformation("Callback URL dinámica: {CallbackUrl}", fullCallbackUrl);
             return Challenge(props, "Google");
         }
 
@@ -130,6 +136,22 @@ namespace PetMatch.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
+
+
+        [HttpGet("debug-callback-url")]
+        public IActionResult DebugCallbackUrl()
+        {
+            var request = HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            // Agregas el CallbackPath que definiste en Startup/Program
+            var callbackPath = "/signin-google"; // O el que tengas configurado
+
+            var fullCallbackUrl = baseUrl + callbackPath;
+
+            return Content($"Callback URL configurada: {fullCallbackUrl}");
+        }
+
 
     }
 }
