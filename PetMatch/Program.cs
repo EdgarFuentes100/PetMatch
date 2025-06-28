@@ -156,6 +156,8 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+app.MapGet("/debug-connection", (IConfiguration config) => config.GetConnectionString("Connection") ?? "No connection string found");
+
 ///CONFIGURA https en vez de http
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
