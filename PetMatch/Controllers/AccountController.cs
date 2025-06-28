@@ -37,9 +37,12 @@ namespace PetMatch.Controllers
         [HttpPost("login/google")]
         public IActionResult LoginWithGoogle(string returnUrl = "/")
         {
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), new { returnUrl });
+            Console.WriteLine($"[LoginWithGoogle] RedirectUri: {redirectUrl}");
+
             var props = new AuthenticationProperties
             {
-                RedirectUri = Url.Action(nameof(ExternalLoginCallback), new { returnUrl })
+                RedirectUri = redirectUrl
             };
             return Challenge(props, "Google");
         }
@@ -47,6 +50,9 @@ namespace PetMatch.Controllers
         [HttpGet("externallogincallback")]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl = "/")
         {
+            Console.WriteLine($"[ExternalLoginCallback] returnUrl recibido: {returnUrl}");
+            Console.WriteLine($"URL completa: {Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}");
+
             // 1) Recuperar id_token guardado en la cookie
             var authResult = await HttpContext.AuthenticateAsync();
             var idToken = authResult.Properties.GetTokenValue("id_token");
