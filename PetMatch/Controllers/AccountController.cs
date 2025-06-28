@@ -34,11 +34,12 @@ namespace PetMatch.Controllers
             return View(); // Muestra la vista personalizada
         }
 
-        [HttpPost("login/google")]
         public IActionResult LoginWithGoogle(string returnUrl = "/")
         {
             var redirectUrl = Url.Action(nameof(ExternalLoginCallback), new { returnUrl });
-            Console.WriteLine($"[LoginWithGoogle] RedirectUri: {redirectUrl}");
+            var fullRedirectUrl = $"{Request.Scheme}://{Request.Host}{redirectUrl}";
+
+            ViewData["RedirectUrl"] = fullRedirectUrl;
 
             var props = new AuthenticationProperties
             {
@@ -46,6 +47,7 @@ namespace PetMatch.Controllers
             };
             return Challenge(props, "Google");
         }
+
 
         [HttpGet("externallogincallback")]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl = "/")
