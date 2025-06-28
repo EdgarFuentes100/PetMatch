@@ -140,8 +140,14 @@ builder.Services.AddScoped<ServiceGoogleValidator>();
 
 // CONEXION A BASE DE DATOS SQL SERVER 
 var connection = builder.Configuration.GetConnectionString("Connection");
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connection));
 
+if (string.IsNullOrEmpty(connection))
+{
+    throw new Exception("La cadena de conexión está vacía o no fue encontrada.");
+}
+Console.WriteLine($"Connection String: '{connection}'");
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connection));
 
 // Middleware
 var app = builder.Build();
