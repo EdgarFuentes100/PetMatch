@@ -13,6 +13,8 @@ namespace PetMatch.Context
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<Perfil> Perfil { get; set; }
         public DbSet<Mensaje> Mensajes { get; set; }
+        public DbSet<PerfilMascotaIdeal> PerfilMascotaIdeal { get; set; }
+        public DbSet<MascotaIdeal> MascotaIdeal { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

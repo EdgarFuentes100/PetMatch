@@ -5,12 +5,11 @@
 <h2>Hacer Match</h2>
 
 <form asp-action="HacerMatch" method="post">
-    <textarea name="descripcion" rows="6" cols="70"></textarea>
+    <textarea name="descripcion" rows="6" cols="70">@ViewBag.Descripcion</textarea>
     <br />
     <button type="submit" class="btn btn-primary mt-2">Enviar</button>
 </form>
 
-<!-- Mensajes de validación -->
 @if (!ViewData.ModelState.IsValid)
 {
     <div class="text-danger mt-2">
@@ -21,13 +20,33 @@
     </div>
 }
 
-<!-- Sección de resultados: solo aparece si existe ViewBag.Respuesta -->
-@if (ViewBag.Respuesta != null)
+@if (ViewBag.MascotasRecomendadas != null && ((List<PetMatch.Models.Mascota>)ViewBag.MascotasRecomendadas).Any())
 {
     <hr />
-    <h2>Respuesta</h2>
-    <div style="white-space: pre-wrap; border:1px solid #ccc; padding:10px;">
-        @ViewBag.Respuesta
+    <h3>Etiqueta generada:</h3>
+    <p>@ViewBag.EtiquetaGenerada</p>
+
+    <h3>Mascotas recomendadas:</h3>
+    <div class="row">
+        @foreach (var mascota in (List<PetMatch.Models.Mascota>)ViewBag.MascotasRecomendadas)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <img src="@mascota.FotoUrl" alt="@mascota.Nombre" class="card-img-top" />
+                    <div class="card-body">
+                        <h5 class="card-title">@mascota.Nombre</h5>
+                        <p>ID Mascota: @mascota.MascotaId</p>
+                        <p>Edad: @mascota.EdadMeses meses</p>
+                        <p>Sexo: @mascota.Sexo</p>
+                        <p>Tamaño: @mascota.Tamano</p>
+                        <p>Raza: @mascota.Raza</p>
+                        <p>Compatible con niños: @(mascota.CompatibleConNiños ? "Sí" : "No")</p>
+                        <p>Descripción: @mascota.Descripcion</p>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
+
     <a asp-action="HacerMatch" class="btn btn-secondary mt-3">Volver</a>
 }

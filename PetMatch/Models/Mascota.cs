@@ -4,6 +4,7 @@ namespace PetMatch.Models
 {
     public class Mascota
     {
+
         public int MascotaId { get; set; }
 
         [Required, StringLength(80)]
@@ -14,6 +15,16 @@ namespace PetMatch.Models
         public string? Tamano { get; set; }          // Pequeño, Mediano...
         public string? FotoUrl { get; set; }
         public string Temperamento { get; set; }
+        public int NivelEnergia { get; set; } // Escala 1-5
+        public bool Sociable { get; set; }
+        public bool RequiereEjercicio { get; set; }
+        public string Raza { get; set; }
+        public string Descripcion { get; set; }
+
+        public bool CompatibleConNiños { get; set; }
+        public bool CompatibleConOtrasMascotas { get; set; }
+        public int NivelCuidado { get; set; }
+        public string AmbienteIdeal { get; set; }
 
         // FK
         public int TipoMascotaId { get; set; }
@@ -22,5 +33,7 @@ namespace PetMatch.Models
         // Navegaciones
         public ICollection<Publicacion> Publicaciones { get; set; } = new List<Publicacion>();
         public ICollection<Solicitud> Solicitudes { get; set; } = new List<Solicitud>();
+        public ICollection<MascotaIdeal> MascotasIdeales { get; set; }
+
     }
 }

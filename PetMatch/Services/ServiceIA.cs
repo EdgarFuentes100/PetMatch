@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using NuGet.Protocol;
 using OpenAI.Chat;
 using PetMatch.Models;
+using PetMatch.Models.DTO;
 
 public class ServiceIA
 {
@@ -25,43 +26,58 @@ public class ServiceIA
         _deploymentName = cfg.Value.DeploymentName;
     }
 
-    public async Task<string> ObtenerRespuestaAsync(string prompt)
+    public async Task<string> ObtenerRespuestaTextoAsync(string estiloDeVida)
     {
-        try
-        {
-            var chatClient = _client.GetChatClient(_deploymentName);
+        var prompt = @$"
+            Eres un asistente que analiza un texto que describe el estilo de vida de una persona y devuelve un JSON con esta estructura exacta:
 
-            var messages = new List<ChatMessage>
+            {{
+              ""EtiquetaGenerada"": ""una etiqueta corta que resume el perfil (ejemplo: 'Activo, con niños pequeños')"",
+              ""MascotasRecomendadasIds"": [lista de enteros con IDs de mascotas recomendadas]
+            }}
+
+            El texto a analizar es:
+            ""{estiloDeVida}""
+
+            Solo responde con el JSON sin texto adicional.";
+
+        var chatClient = _client.GetChatClient(_deploymentName);
+
+        var messages = new List<ChatMessage>
+    {
+        new SystemChatMessage("You are a helpful assistant."),
+        new UserChatMessage(prompt)
+    };
+
+        var options = new ChatCompletionOptions
         {
-            new SystemChatMessage("You are a helpful assistant."),
-            new UserChatMessage(prompt)
+            MaxOutputTokenCount = 300,
+            Temperature = 0.7f
         };
 
-            var options = new ChatCompletionOptions
-            {
-                MaxOutputTokenCount = 300,
-                Temperature = 0.7f
-            };
+        var response = await chatClient.CompleteChatAsync(messages, options);
 
-            var response = await chatClient.CompleteChatAsync(messages, options);
+        var resul = response.ToJToken();
+        string texto = resul.SelectToken("Value.Content[0].Text")?.ToString();
 
-            var resul = response.ToJToken();
+        return texto ?? "No se recibió texto en la respuesta.";
+    }
 
-            string texto = resul
-                .SelectToken("Value.Content[0].Text")?
-                .ToString();
 
-            return texto ?? "No se recibió texto en la respuesta.";
-        }
-        catch (RequestFailedException ex) when (ex.Status == 429)
+    // Método que devuelve el objeto parseado
+    public async Task<RecomendacionDTO> ObtenerRespuestaObjetoAsync(string prompt)
+    {
+        string texto = await ObtenerRespuestaTextoAsync(prompt);
+
+        try
         {
-            return "Límite alcanzado o sin tokens disponibles. Intenta más tarde.";
+            var resultado = System.Text.Json.JsonSerializer.Deserialize<RecomendacionDTO>(texto);
+            return resultado ?? new RecomendacionDTO();
         }
-        // 2️⃣ Cualquier otro error
-        catch (Exception ex)
+        catch (Exception)
         {
-            // Puedes registrar 'ex' con ILogger aquí si lo deseas
-            return $"Ocurrió un error inesperado: {ex.Message}";
+            // Aquí puedes manejar error de parseo o devolver un resultado vacío
+            return new RecomendacionDTO();
         }
     }
 }
