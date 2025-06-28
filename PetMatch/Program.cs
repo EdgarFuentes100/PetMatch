@@ -170,6 +170,19 @@ app.MapGet("/check-connection", async () =>
         return $"Error: {ex.Message}";
     }
 });
+app.MapGet("/check-connection1", async () =>
+{
+    try
+    {
+        using var conn = new SqlConnection("Server=127.0.0.1,33000;Database=db_petMatch;User Id=sa;Password=PetMatch123;TrustServerCertificate=True;");
+        await conn.OpenAsync();
+        return "Conexión exitosa.";
+    }
+    catch (Exception ex)
+    {
+        return $"Error: {ex.Message}";
+    }
+});
 
 ///CONFIGURA https en vez de http
 app.UseForwardedHeaders(new ForwardedHeadersOptions
