@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using PetMatch.Context;
@@ -156,7 +157,19 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-app.MapGet("/debug-connection", (IConfiguration config) => config.GetConnectionString("Connection") ?? "No connection string found");
+app.MapGet("/check-connection", async () =>
+{
+    try
+    {
+        using var conn = new SqlConnection("Server=desktop-ldplhqt-sqlserver.at.remote.it,33000;Database=db_petMatch;User Id=sa;Password=PetMatch123;TrustServerCertificate=True;");
+        await conn.OpenAsync();
+        return "Conexión exitosa.";
+    }
+    catch (Exception ex)
+    {
+        return $"Error: {ex.Message}";
+    }
+});
 
 ///CONFIGURA https en vez de http
 app.UseForwardedHeaders(new ForwardedHeadersOptions
