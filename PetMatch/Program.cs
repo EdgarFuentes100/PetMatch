@@ -143,8 +143,6 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(conn
 
 // Middleware
 var app = builder.Build();
-app.UseDeveloperExceptionPage();
-
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
