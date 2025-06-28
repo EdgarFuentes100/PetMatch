@@ -9,6 +9,15 @@
     </div>
 }
 
+@{
+    var rutasJson = Newtonsoft.Json.JsonConvert.SerializeObject(ViewData["Rutas"]);
+}
+<script>
+    const rutasBackend = @Html.Raw(rutasJson);
+    console.log("📌 Rutas del backend:");
+    rutasBackend.forEach(r => console.log(r));
+</script>
+
 
 <div class="container pt-3" style="min-height: auto;">
     <div class="card shadow-sm p-4 px-3 text-center" style="max-width: 400px; width: 100%; margin: 0 auto;">
