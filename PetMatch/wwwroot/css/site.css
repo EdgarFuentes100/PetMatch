@@ -1,4 +1,4 @@
-html {
+﻿html {
     font-size: 14px;
     position: relative;
     min-height: 100%;
@@ -34,15 +34,9 @@ body {
 }
 
 
-.mi-fondo {
-    background-image: url('../img/unsplash.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 100vh;
-}
-
-/*BOTONESSSS*/
+/* ----------------------------------------
+   BOTONES PERSONALIZADOS
+---------------------------------------- */
 .btn-buscar {
     background-color: var(--azul-primario);
     color: var(--blanco);
@@ -50,7 +44,8 @@ body {
     transition: background-color 0.3s ease;
 }
 
-    .btn-buscar:hover, .btn-buscar:focus {
+    .btn-buscar:hover,
+    .btn-buscar:focus {
         background-color: #145a8a;
         color: var(--blanco);
         outline: none;
@@ -66,10 +61,11 @@ body {
     background-color: var(--azul-primario);
     color: var(--blanco) !important;
 }
-/******************/
 
 
- /*maneja tama�o en historias de las publicaciones*/
+/* ----------------------------------------
+   HISTORIAS DE PUBLICACIONES
+---------------------------------------- */
 .historia-recortada {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -92,4 +88,90 @@ body {
     border: none;
     cursor: pointer;
 }
-/************************************/
+
+
+/* ----------------------------------------
+   ESTILOS EXCLUSIVOS DE LA PÁGINA HOME 🐾
+---------------------------------------- */
+
+/* Fondo de la sección principal */
+.mi-fondo {
+    background-image: url('../img/unsplash.jpg'); /* Asegúrate que el path sea correcto */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+}
+
+/* Íconos de beneficios (¿Por qué adoptar?) */
+.benefit-icon {
+    font-size: 2rem;
+    color: #28a745;
+}
+
+/* Título de secciones */
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+/* Tarjetas de fundaciones */
+.card-custom {
+    border: none;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+    .card-custom:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 16px 32px rgba(0,0,0,0.15);
+    }
+
+.card-img-top {
+    height: 220px;
+    object-fit: cover;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+
+/* Responsive para texto en la sección principal */
+@media (max-width: 767.98px) {
+    .hero-text h1 {
+        font-size: 2.2rem;
+    }
+
+    .hero-text p {
+        font-size: 1rem;
+    }
+}
+
+/* Dropdown Menu del navbar */
+.dropdown-menu {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    padding: 0.5rem 0;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1.5rem;
+    color: #34495e;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+        background-color: #27ae60;
+        color: #fff;
+    }
+
+/* Toggler navbar (hamburger) */
+.navbar-toggler {
+    border-color: #27ae60;
+}
+
+
+
