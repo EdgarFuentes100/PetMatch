@@ -20,24 +20,62 @@ namespace PetMatch.Controllers
             _transactionHelper = serviceTransaction;
         }
 
-        [AllowAnonymous]
-        public async Task<IActionResult> VistaPublicaciones()
+
+        // GET: /Adopcion/VistaAdopcion
+        [AllowAnonymous] // ✅ ESTA vista sí es pública
+        public async Task<IActionResult> VistaAdopcion()
         {
+            // 1) Las publicaciones que quieres mostrar
             var publicaciones = await _context.Publicaciones
+                .Where(pub => !_context.Solicitud.Any(ado => ado.MascotaId == pub.MascotaId))
                 .Include(p => p.Mascota)
+                .ThenInclude(m => m.TipoMascota)
                 .Include(p => p.Publicador)
                 .ToListAsync();
 
-            var mascotasIds = publicaciones.Select(p => p.MascotaId).ToList();
-
-            var solicitudes = await _context.Solicitud
-                .Include(s => s.Solicitante)
-                .Where(s => mascotasIds.Contains(s.MascotaId))
-                .ToListAsync();
-
-            ViewBag.Solicitudes = solicitudes;
-
             return View(publicaciones);
+        }
+
+        public IActionResult VistaSolicitud(int id)
+        {
+            var publicacion = _context.Publicaciones
+                .Include(p => p.Mascota)
+                    .ThenInclude(m => m.TipoMascota)
+                .Include(p => p.Publicador)
+                .FirstOrDefault(p => p.PublicacionId == id);
+
+            if (publicacion == null)
+                return NotFound();
+
+            return View(publicacion); // Vista Adoptar.cshtml
+        }
+
+        public async Task<IActionResult> EnviarSolicitud(Solicitud solicitud, int idPublicacion)
+        {
+            var userId = User.FindFirst("UserId")?.Value;
+            if (userId == null)
+                return Unauthorized();
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Mensaje"] = "Por favor, completa todos los campos correctamente.";
+                TempData["EsExito"] = false;
+                return RedirectToAction(nameof(VistaSolicitud), new { id = idPublicacion });
+            }
+
+            await _transactionHelper.RunAsync(async () =>
+            {
+                solicitud.SolicitanteId = int.Parse(userId);
+                solicitud.Estado = 'P';
+
+                _context.Solicitud.Add(solicitud);
+                await _context.SaveChangesAsync();
+            });
+
+            TempData["Mensaje"] = "✅ Solicitud enviada con éxito.";
+            TempData["EsExito"] = true;
+            TempData["RedirigirA"] = Url.Action("VistaAdopcion"); // Puedes cambiar esto
+            return RedirectToAction(nameof(VistaSolicitud), new { id = idPublicacion });
         }
 
         [HttpPost]
