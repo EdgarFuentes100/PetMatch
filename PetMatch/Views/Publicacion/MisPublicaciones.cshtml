@@ -1,92 +1,216 @@
 ﻿@model List<Publicacion>
-
 @{
-    var solicitudes = ViewBag.Solicitudes as List<Solicitud>;
+    var solicitudes = ViewBag.Solicitudes as List<Solicitud> ?? new List<Solicitud>();
+    var publicacionesOrdenadas = Model.OrderByDescending(p => p.FechaPublicacion).ToList();
 }
 
-<!-- Incluir el modal -->
 @Html.Partial("_ModalChat")
 
-<div class="container my-3">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-bold">Mis publicaciones</h1>
-        <a class="btn btn-primary" asp-controller="Publicacion" asp-action="HacerPublicacion">
-            + Hacer publicación
-        </a>
-    </div>    @foreach (var pub in Model)
-    {
-        <div class="card p-3 mb-4 shadow-sm">
-            <div class="row mb-4">
-                <!-- Publicación -->
-                <div class="col-lg-6 mb-3 mb-lg-0">
-                    <div class="card h-100 border-0">
-                        <img src="@pub.Mascota.FotoUrl"
-                             class="card-img-top"
-                             alt="Foto de @pub.Mascota.Nombre"
-                             style="height: 220px; object-fit: cover;" />
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold">@pub.Titulo</h5>
-                            <p class="card-text">@pub.Historia</p>
-                            <ul class="list-unstyled small mb-3">
-                                <li><strong>Mascota:</strong> @pub.Mascota.Nombre</li>
-                                <li><strong>Tipo Animal:</strong> @pub.Mascota.TipoMascota.Nombre</li>
-                                <li><strong>Edad:</strong> @pub.Mascota.EdadMeses meses</li>
-                                <li><strong>Temperamento:</strong> @pub.Mascota.Temperamento</li>
-                                <li><strong>Tamaño:</strong> @pub.Mascota.Tamano</li>
-                                <li><strong>Sexo:</strong> @(pub.Mascota.Sexo == 'M' ? "Macho" : pub.Mascota.Sexo == 'H' ? "Hembra" : "No especificado")</li>
-                            </ul>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <a href="#" class="btn btn-sm btn-outline-primary">Editar</a>
-                                <a href="#" class="btn btn-sm btn-outline-danger">Eliminar</a>
-                                <a href="#" class="btn btn-sm btn-outline-info">Detalles</a>
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div class="mb-2">
+            <h1 class="fw-bold mb-1">Mis Publicaciones</h1>
+            <p class="text-muted mb-0">Administra tus mascotas en adopción</p>
+        </div>
+
+        <div class="d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center">
+            <div class="order-2 order-md-1 flex-grow-1" style="min-width: 600px;">
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" id="buscarPublicacion" class="form-control" placeholder="Buscar mascota..." />
+                </div>
+            </div>
+
+            <div class="order-1 order-md-2 d-flex gap-2">
+                <a class="btn btn-primary" asp-controller="Publicacion" asp-action="HacerPublicacion">
+                    <i class="bi bi-plus-circle me-1"></i> Publicar
+                </a>
+                <a class="btn btn-outline-secondary" asp-controller="Cita" asp-action="VerCitas">
+                    <i class="bi bi-calendar3 me-1"></i> Citas
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row gy-4" id="contenedorPublicaciones">
+        @foreach (var pub in publicacionesOrdenadas)
+        {
+            var pubIdStr = pub.MascotaId.ToString();
+
+            <div class="col-12 card shadow-sm p-3 mb-3" id="mascota-@pub.MascotaId">
+                <div class="row">
+                    <!-- IZQUIERDA -->
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <h2 class="fw-bold">@pub.Mascota.Nombre</h2>
+                            <p>@(string.IsNullOrEmpty(pub.Historia) ? "Sin historia disponible" : pub.Historia)</p>
+                        </div>
+                        <div style="max-width: 350px; max-height: 280px; overflow: hidden; border-radius: 0.5rem; margin-bottom: 1rem; margin-left: auto; margin-right: auto;">
+                            <img src="@(string.IsNullOrEmpty(pub.Mascota.FotoUrl) ? "/img/pet-placeholder.jpg" : pub.Mascota.FotoUrl)"
+                                 alt="@pub.Mascota.Nombre"
+                                 class="img-fluid"
+                                 style="width: 100%; height: 100%; object-fit: cover; object-position: center;" />
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-3 mb-3">
+                            <span><i class="bi bi-gender-ambiguous text-primary me-1"></i> @(pub.Mascota.Sexo == 'M' ? "Macho" : "Hembra")</span>
+                            <span><i class="bi bi-calendar3 text-primary me-1"></i> @(pub.Mascota.EdadMeses.HasValue ? $"{pub.Mascota.EdadMeses} meses" : "Edad no especificada")</span>
+                            <span><i class="bi bi-rulers text-primary me-1"></i> @pub.Mascota.Tamano</span>
+                            <span><i class="bi bi-lightning-charge text-primary me-1"></i> @pub.Mascota.Temperamento</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex flex-wrap gap-2">
+                                @if (pub.Mascota.CompatibleConNiños)
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-emoji-smile"></i> Con niños</span>
+                                }
+                                @if (pub.Mascota.CompatibleConOtrasMascotas)
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-heart"></i> Con otras mascotas</span>
+                                }
+                                @if (pub.Mascota.RequiereEjercicio)
+                                {
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-lightning"></i> Necesita ejercicio</span>
+                                }
+                                @if (pub.Mascota.Sociable)
+                                {
+                                    <span class="badge bg-info"><i class="bi bi-people"></i> Sociable</span>
+                                }
                             </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label>
+                                    Energía:
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="bi @(i <= pub.Mascota.NivelEnergia ? "bi-star-fill text-warning" : "bi-star text-muted")"></i>
+                                    }
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <label>
+                                    Cuidados:
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="bi @(i <= pub.Mascota.NivelCuidado ? "bi-heart-fill text-danger" : "bi-heart text-muted")"></i>
+                                    }
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DERECHA: Solicitudes pendientes -->
+                    <div class="col-md-7 border-start ps-3" style="max-height: 440px; overflow-y: auto;">
+
+                        <div id="pendientes-@pub.MascotaId">
+                            @Html.Partial("Partials/_SolicitudesPendientes", solicitudes.Where(s => s.MascotaId == pub.MascotaId && s.Estado == 'P'))
                         </div>
                     </div>
                 </div>
 
-                <!-- Solicitudes -->
-                <div class="col-lg-6">
-                    <div class="card h-100 border-0">
-                        <div class="card-body">
-                            <h5 class="fw-bold mb-3">Solicitudes de adopción (@solicitudes.Count(s => s.MascotaId == pub.MascotaId))</h5>
-
-                            <div style="max-height: 250px; overflow-y: auto;">
-                                <div class="list-group">
-                                    @foreach (var solicitud in solicitudes.Where(s => s.MascotaId == pub.MascotaId))
-                                    {
-                                        <div class="list-group-item">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    <h6 class="mb-1">@solicitud.Solicitante.Nombre</h6>
-                                                    <p class="mb-1 small">Tengo experiencia cuidando perros y vivo en casa con patio.</p>
-                                                    <small class="text-muted">@solicitud.Solicitante.Email</small>
-                                                </div>
-                                                <div class="ms-2 text-end">
-                                                    <button class="btn btn-success abrir-chat"
-                                                            data-nombre="@solicitud.Solicitante.Nombre"
-                                                            data-id="@solicitud.Solicitante.UsuarioId"
-                                                            type="button">
-                                                        <i class="bi bi-envelope"></i> Chatear
-                                                    </button>
-
-                                                    <button class="btn btn-sm btn-outline-secondary" title="Aceptar solicitud">
-                                                        <i class="bi bi-check-circle"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-                                    @if (!solicitudes.Any(s => s.MascotaId == pub.MascotaId))
-                                    {
-                                        <p class="text-muted">No hay solicitudes para esta publicación.</p>
-                                    }
+                <!-- ACORDEÓN: Solicitudes aceptadas -->
+                <div class="accordion mt-3" id="acordeonAsignadas_@pubIdStr">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading_@pubIdStr">
+                            <button class="accordion-button collapsed"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapse_@pubIdStr"
+                                    aria-expanded="false"
+                                    aria-controls="collapse_@pubIdStr">
+                                Solicitudes asignadas (<span id="contadorAceptadas-@pub.MascotaId">@solicitudes.Count(s => s.MascotaId == pub.MascotaId && s.Estado == 'A')</span>)
+                            </button>
+                        </h2>
+                        <div id="collapse_@pubIdStr" class="accordion-collapse collapse" aria-labelledby="heading_@pubIdStr" data-bs-parent="#acordeonAsignadas_@pubIdStr">
+                            <div class="accordion-body">
+                                <div id="aceptadas-@pub.MascotaId">
+                                    @Html.Partial("Partials/_SolicitudesAceptadas", solicitudes.Where(s => s.MascotaId == pub.MascotaId && s.Estado == 'A'))
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
-}
+
+<script>
+    // Filtro búsqueda mascota
+    document.getElementById('buscarPublicacion').addEventListener('input', function () {
+        var texto = this.value.toLowerCase();
+        var cards = document.querySelectorAll('#contenedorPublicaciones > div');
+
+        cards.forEach(function (card) {
+            var nombre = card.querySelector('h2.fw-bold').textContent.toLowerCase();
+            card.style.display = nombre.includes(texto) ? '' : 'none';
+        });
+    });
+
+    // Click para aceptar solicitud
+        document.addEventListener("click", function(e) {
+        const btn = e.target.closest(".aceptar-solicitud");
+        if (!btn) return;
+
+        const solicitudId = btn.dataset.id;
+        const mascotaId = btn.dataset.mascota;
+
+        fetch("/Solicitud/AceptarSolicitud", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `solicitudId=${solicitudId}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                Promise.all([
+                    actualizarBloque("pendientes", mascotaId),
+                    actualizarBloque("aceptadas", mascotaId)
+                ]).then(() => {
+                    actualizarConteos(mascotaId);
+                });
+            } else {
+                alert("Error al aceptar la solicitud");
+            }
+        })
+        .catch(console.error);
+    });
+
+    // Función para recargar parcial
+    function actualizarBloque(bloque, mascotaId) {
+        const contenedor = document.getElementById(`${bloque}-${mascotaId}`);
+        if (!contenedor) {
+            console.error(`No existe contenedor con id ${bloque}-${mascotaId}`);
+            return;
+        }
+
+        fetch(`/Publicacion/RecargarBloque`, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `bloque=${bloque}&mascotaId=${mascotaId}`
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Error al recargar bloque');
+            return res.text();
+        })
+        .then(html => {
+            contenedor.innerHTML = html;
+        })
+        .catch(console.error);
+    }
+
+        function actualizarConteos(mascotaId) {
+        fetch(`/Solicitud/ObtenerConteos?mascotaId=${mascotaId}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById(`contadorAceptadas-${mascotaId}`).textContent = data.aceptadas;
+            });
+    }
+
+
+</script>

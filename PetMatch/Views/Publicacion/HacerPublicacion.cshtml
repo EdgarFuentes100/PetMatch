@@ -1,96 +1,164 @@
-﻿<div class="container my-0">
-    <div class="card shadow border-0 rounded-4 p-4">
-        <h2 class="text-center fw-bold mb-4">🐾 Publicar adopción</h2>
+﻿<div class="container my-5">
+    <form asp-action="Crear" asp-controller="Publicacion" method="post" enctype="multipart/form-data">
+        <div class="card shadow border-0 rounded-4 p-4">
+            <h2 class="text-center fw-bold mb-4">🐾 Publicar mascota en adopción</h2>
 
-        <form>
-            <!-- Sección: Publicación -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">Título</label>
-                    <input type="text" class="form-control" placeholder="Ej: Busco hogar para Rocky">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Fecha de publicación</label>
-                    <input type="date" class="form-control">
-                </div>
-            </div>
+            <!-- 🔸 Sección: Publicación -->
+            <div class="mb-5 border-bottom pb-4">
+                <h4 class="fw-semibold mb-3">📣 Información de la publicación</h4>
 
-            <div class="mb-4">
-                <label class="form-label">Historia</label>
-                <textarea class="form-control" rows="2" placeholder="Breve historia del animal"></textarea>
-            </div>
-
-            <!-- Tipo de mascota, Nombre y Edad en la misma fila -->
-            <div class="row mb-3 align-items-end">
-                <div class="col-md-4">
-                    <label class="form-label">Tipo de mascota</label>
-                    <select class="form-select" id="tipoMascotaSelect">
-                        <option selected disabled>Seleccionar</option>
-                        <option value="1">Perro</option>
-                        <option value="2">Gato</option>
-                        <option value="3">Conejo</option>
-                        <option value="4">Ave</option>
-                    </select>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="titulo" class="form-label">Título</label>
+                        <input type="text" id="titulo" name="Titulo" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="fecha" class="form-label">Fecha de publicación</label>
+                        <input type="date" id="fecha" name="FechaPublicacion" class="form-control" required>
+                    </div>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">Nombre</label>
-                    <input type="text" class="form-control" placeholder="Nombre de la mascota">
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label">Edad (meses)</label>
-                    <input type="number" class="form-control" min="0" placeholder="Ej: 12">
+                <div class="mb-3">
+                    <label for="historia" class="form-label">Historia</label>
+                    <textarea id="historia" name="Historia" class="form-control" rows="3"></textarea>
                 </div>
             </div>
 
-            <!-- Resto de campos en filas separadas -->
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Sexo</label>
-                    <select class="form-select">
-                        <option selected disabled>Seleccionar</option>
-                        <option>Macho</option>
-                        <option>Hembra</option>
-                    </select>
+            <!-- 🐶 Sección: Datos de la mascota -->
+            <div>
+                <h4 class="fw-semibold mb-4">🐶 Información de la mascota</h4>
+
+                <div class="row align-items-start mb-4">
+                    <div class="col-md-4 text-center">
+                        <label class="form-label">Foto</label>
+                        <input type="file" id="foto" name="Foto" class="form-control mb-2" accept="image/*" onchange="mostrarPreview(event)">
+                        <img id="previewImgMascota" src="#" alt="Foto de la mascota" class="img-fluid rounded-3 shadow-sm mx-auto d-block" style="max-height: 200px; display: none;">
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" name="Nombre" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Edad (meses)</label>
+                                <input type="number" name="EdadMeses" class="form-control" min="0" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Sexo</label>
+                                <select name="Sexo" class="form-select" required>
+                                    <option selected disabled>Seleccionar</option>
+                                    <option value="M">Macho</option>
+                                    <option value="H">Hembra</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tamaño</label>
+                                <select name="Tamano" class="form-select" required>
+                                    <option selected disabled>Seleccionar</option>
+                                    <option value="Pequeño">Pequeño</option>
+                                    <option value="Mediano">Mediano</option>
+                                    <option value="Grande">Grande</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">Tamaño</label>
-                    <select class="form-select">
-                        <option selected disabled>Seleccionar</option>
-                        <option>Pequeño</option>
-                        <option>Mediano</option>
-                        <option>Grande</option>
-                    </select>
+                <!-- Más campos -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Tipo de mascota</label>
+                        <select name="TipoMascotaId" class="form-select" required>
+                            <option selected disabled>Seleccionar</option>
+                            <option value="1">Perro</option>
+                            <option value="2">Gato</option>
+                            <option value="3">Otro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Temperamento</label>
+                        <select name="Temperamento" class="form-select">
+                            <option selected disabled>Seleccionar</option>
+                            <option value="Tranquilo">Tranquilo</option>
+                            <option value="Juguetón">Juguetón</option>
+                            <option value="Protector">Protector</option>
+                            <option value="Activo">Activo</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label">Temperamento</label>
-                    <select class="form-select">
-                        <option selected disabled>Seleccionar</option>
-                        <option>Tranquilo</option>
-                        <option>Juguetón</option>
-                        <option>Protector</option>
-                        <option>Activo</option>
-                    </select>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nivel de energía</label>
+                        <select name="NivelEnergia" class="form-select" required>
+                            <option selected disabled>Seleccionar</option>
+                            <option value="1">Baja</option>
+                            <option value="2">Media</option>
+                            <option value="3">Alta</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Hogar ideal</label>
+                        <input type="text" name="AmbienteIdeal" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Raza</label>
+                        <input type="text" name="Raza" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nivel de cuidados</label>
+                        <select name="NivelCuidado" class="form-select">
+                            <option selected disabled>Seleccionar</option>
+                            <option value="1">Bajo</option>
+                            <option value="2">Medio</option>
+                            <option value="3">Alto</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Descripción</label>
+                    <textarea name="Descripcion" class="form-control" rows="3"></textarea>
+                </div>
+
+                <!-- Checkboxes -->
+                <h5 class="fw-semibold mt-4">Compatibilidad y Salud</h5>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input class="form-check-input" type="checkbox" name="CompatibleConNiños" value="true"> Convive con niños
+                    </div>
+                    <div class="col-md-4">
+                        <input class="form-check-input" type="checkbox" name="CompatibleConOtrasMascotas" value="true"> Convive con otras mascotas
+                    </div>
+                    <div class="col-md-4">
+                        <input class="form-check-input" type="checkbox" name="RequiereEjercicio" value="true"> Requiere ejercicio
+                    </div>
+                    <div class="col-md-4 mt-2">
+                        <input class="form-check-input" type="checkbox" name="Sociable" value="true"> Sociable
+                    </div>
                 </div>
             </div>
 
-            <!-- Foto y preview lado a lado en desktop, apilados con margen en móvil -->
-            <div class="row align-items-center mb-4">
-                <div class="col-12 col-md-6 mb-3 mb-md-0">
-                    <label class="form-label">Foto</label>
-                    <input type="file" class="form-control" accept="image/*" id="fotoInput">
-                </div>
-                <div class="col-12 col-md-6 text-center">
-                    <img id="previewImg" src="#" alt="Vista previa" class="img-fluid rounded-3 shadow-sm" style="max-height: 200px; display:none;">
-                </div>
+            <!-- Botón final -->
+            <div class="text-end mt-4">
+                <button type="submit" class="btn btn-success fw-bold px-5">Publicar</button>
             </div>
-
-            <div class="text-end">
-                <button type="submit" class="btn btn-primary fw-bold px-4">Insertar</button>
-            </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
+<script>
+    function mostrarPreview(event) {
+        const img = document.getElementById('previewImgMascota');
+        const file = event.target.files[0];
+        if (file) {
+            img.src = URL.createObjectURL(file);
+            img.style.display = 'block';
+        }
+    }
+</script>

@@ -1,0 +1,22 @@
+﻿@model IEnumerable<Solicitud>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No hay solicitudes asignadas aún.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var asignada in Model)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>@asignada.Solicitante.Nombre</strong> - @asignada.Solicitante.Email
+                </div>
+                <button class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-calendar2-event"></i> Agendar cita
+                </button>
+            </li>
+        }
+    </ul>
+}

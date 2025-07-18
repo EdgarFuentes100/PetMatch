@@ -2,31 +2,39 @@
 
 <input type="hidden" id="userIdHidden" value="@User.FindFirst("UserId")?.Value" />
 
-<div class="container my-4">
-    <h2>Mis chats recientes</h2>
+<div class="container my-5">
+    <h2 class="text-center mb-4 text-primary fw-bold">💬 Mis chats recientes</h2>
 
     <ul class="list-group" id="lista-chats">
         @if (!Model.Any())
         {
-            <li class="list-group-item text-muted">No tienes mensajes aún.</li>
+            <li class="list-group-item text-center text-muted py-4">
+                <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                No tienes mensajes aún.
+            </li>
         }
         else
         {
             @foreach (var mensaje in Model)
             {
-                var otroUsuario = mensaje.EmisorId == int.Parse(User.FindFirst("UserId").Value)
-                ? mensaje.Receptor
-                : mensaje.Emisor;
+                var userId = int.Parse(User.FindFirst("UserId").Value);
+                var otroUsuario = mensaje.EmisorId == userId ? mensaje.Receptor : mensaje.Emisor;
+                bool noLeido = mensaje.ReceptorId == userId && !mensaje.Leido;
 
-                bool noLeido = mensaje.ReceptorId == int.Parse(User.FindFirst("UserId").Value) && !mensaje.Leido;
-
-                <li class="list-group-item d-flex justify-content-between align-items-center @(noLeido ? "fw-bold" : "")" data-id="@otroUsuario.UsuarioId">
-                    <div>
-                        <strong>@otroUsuario.Nombre</strong><br />
-                        <small class="text-muted">@mensaje.Contenido</small>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 @(noLeido ? "bg-light border-start border-4 border-primary" : "")" data-id="@otroUsuario.UsuarioId">
+                    <div class="me-3 flex-grow-1">
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-semibold">@otroUsuario.Nombre</span>
+                            @if (noLeido)
+                            {
+                                <span class="badge bg-primary">Nuevo</span>
+                            }
+                        </div>
+                        <small class="text-muted d-block">@mensaje.Contenido</small>
                     </div>
-                    <a class="btn btn-sm btn-primary abrir-chat" data-id="@otroUsuario.UsuarioId" data-nombre="@otroUsuario.Nombre">
-                        <i class="bi bi-chat-dots"></i> Abrir chat
+
+                    <a class="btn btn-outline-primary btn-sm abrir-chat" data-id="@otroUsuario.UsuarioId" data-nombre="@otroUsuario.Nombre" title="Abrir chat con @otroUsuario.Nombre">
+                        <i class="bi bi-chat-dots"></i>
                     </a>
                 </li>
             }
@@ -34,5 +42,5 @@
     </ul>
 </div>
 
-<!-- Modal del chat (asumiendo que ya lo tienes) -->
+<!-- Modal del chat -->
 @Html.Partial("_ModalChat")
