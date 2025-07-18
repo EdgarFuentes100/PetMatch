@@ -1,0 +1,48 @@
+﻿@{
+    // Datos estáticos inventados
+    var totalSolicitudes = 10;
+    var pendientes = 4;
+    var aceptadas = 5;
+    var pausadas = 1;
+
+    var citas = new List<dynamic> {
+        new { Fecha = "2025-07-20", Estado = "Pendiente", Nombre = "Juan Pérez" },
+        new { Fecha = "2025-07-21", Estado = "Aceptada", Nombre = "María López" },
+        new { Fecha = "2025-07-22", Estado = "Aceptada", Nombre = "Carlos Ruiz" },
+        new { Fecha = "2025-07-23", Estado = "Pausada", Nombre = "Ana Gómez" }
+    };
+}
+
+<h3>Mis Citas</h3>
+
+<p>Total de solicitudes: <strong>@totalSolicitudes</strong></p>
+<ul>
+    <li>Pendientes: <strong>@pendientes</strong></li>
+    <li>Aceptadas: <strong>@aceptadas</strong></li>
+    <li>Pausadas: <strong>@pausadas</strong></li>
+</ul>
+
+<button class="btn btn-primary">Mis Citas</button>
+
+<hr />
+
+<h4>Detalles de las citas</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Solicitante</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cita in citas)
+        {
+            <tr>
+                <td>@cita.Fecha</td>
+                <td>@cita.Estado</td>
+                <td>@cita.Nombre</td>
+            </tr>
+        }
+    </tbody>
+</table>

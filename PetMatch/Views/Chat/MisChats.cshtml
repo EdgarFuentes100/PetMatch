@@ -3,44 +3,79 @@
 <input type="hidden" id="userIdHidden" value="@User.FindFirst("UserId")?.Value" />
 
 <div class="container my-5">
-    <h2 class="text-center mb-4 text-primary fw-bold">💬 Mis chats recientes</h2>
+    <!-- Encabezado mejorado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold mb-0">💬 Mis chats recientes</h2>
+        <div class="input-group" style="max-width: 300px;">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" placeholder="Buscar conversación..." id="buscador-chats">
+        </div>
+    </div>
 
-    <ul class="list-group" id="lista-chats">
-        @if (!Model.Any())
-        {
-            <li class="list-group-item text-center text-muted py-4">
-                <i class="bi bi-inbox display-6 d-block mb-2"></i>
-                No tienes mensajes aún.
-            </li>
-        }
-        else
-        {
-            @foreach (var mensaje in Model)
+    <!-- Lista de chats -->
+    <div class="card border-0 shadow-sm">
+        <ul class="list-group list-group-flush" id="lista-chats">
+            @if (!Model.Any())
             {
-                var userId = int.Parse(User.FindFirst("UserId").Value);
-                var otroUsuario = mensaje.EmisorId == userId ? mensaje.Receptor : mensaje.Emisor;
-                bool noLeido = mensaje.ReceptorId == userId && !mensaje.Leido;
-
-                <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 @(noLeido ? "bg-light border-start border-4 border-primary" : "")" data-id="@otroUsuario.UsuarioId">
-                    <div class="me-3 flex-grow-1">
-                        <div class="d-flex justify-content-between">
-                            <span class="fw-semibold">@otroUsuario.Nombre</span>
-                            @if (noLeido)
-                            {
-                                <span class="badge bg-primary">Nuevo</span>
-                            }
-                        </div>
-                        <small class="text-muted d-block">@mensaje.Contenido</small>
-                    </div>
-
-                    <a class="btn btn-outline-primary btn-sm abrir-chat" data-id="@otroUsuario.UsuarioId" data-nombre="@otroUsuario.Nombre" title="Abrir chat con @otroUsuario.Nombre">
-                        <i class="bi bi-chat-dots"></i>
-                    </a>
+                <li class="list-group-item text-center text-muted py-5">
+                    <i class="bi bi-chat-square-text display-5 d-block mb-3 text-muted opacity-50"></i>
+                    <h5 class="fw-light">No tienes mensajes aún</h5>
+                    <small class="text-muted">Cuando inicies una conversación aparecerá aquí</small>
                 </li>
             }
-        }
-    </ul>
+            else
+            {
+                @foreach (var mensaje in Model)
+                {
+                    var userId = int.Parse(User.FindFirst("UserId").Value);
+                    var otroUsuario = mensaje.EmisorId == userId ? mensaje.Receptor : mensaje.Emisor;
+                    bool noLeido = mensaje.ReceptorId == userId && !mensaje.Leido;
+
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 @(noLeido ? "bg-light bg-opacity-25 border-start border-primary border-4" : "") hover-shadow-sm" data-id="@otroUsuario.UsuarioId">
+                        <div class="d-flex align-items-center w-100">
+                            <!-- Avatar con inicial -->
+                            <div class="flex-shrink-0 bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                @otroUsuario.Nombre.Substring(0, 1)
+                            </div>
+
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-semibold text-truncate pe-2">@otroUsuario.Nombre</span>
+                                    <small class="text-muted text-nowrap">@mensaje.FechaEnvio.ToString("HH:mm")</small>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted text-truncate pe-2">@mensaje.Contenido</small>
+                                    @if (noLeido)
+                                    {
+                                        <span class="badge bg-primary rounded-pill">Nuevo</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-outline-primary btn-sm rounded-circle ms-2 abrir-chat"
+                                data-id="@otroUsuario.UsuarioId"
+                                data-nombre="@otroUsuario.Nombre"
+                                title="Abrir chat con @otroUsuario.Nombre">
+                            <i class="bi bi-chat-dots"></i>
+                        </button>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
 </div>
 
 <!-- Modal del chat -->
 @Html.Partial("_ModalChat")
+
+<!-- Script para búsqueda simple -->
+<script>
+    document.getElementById('buscador-chats').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        document.querySelectorAll('#lista-chats li[data-id]').forEach(chat => {
+            const nombre = chat.querySelector('.fw-semibold').textContent.toLowerCase();
+            chat.style.display = nombre.includes(searchTerm) ? '' : 'none';
+        });
+    });
+</script>
